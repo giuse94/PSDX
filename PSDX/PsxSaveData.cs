@@ -8,7 +8,7 @@ public class PsxSaveData
 
     private const int _fileNameLength = 20; // 20 bytes, discarding the null-terminator.
 
-    private MemoryStream _stream = new(_saveDataLength);
+    protected MemoryStream _stream = new(_saveDataLength);
 
     // Return a copy so that consumers won't interfere.
     private MemoryStream Stream => new MemoryStream(_stream.ToArray());
@@ -43,5 +43,26 @@ public class CrashBandicoot2SaveData : PsxSaveData
         {
             throw new ArgumentException("Only the European version of Crash Bandicoot 2 is currently supported.", nameof(s));
         }
+    }
+
+    // Thanks to https://github.com/socram8888/tonyhax/blob/9d57fd2e072a4fd173218c321520051479d14012/entrypoints/fix-crash-checksum.sh
+    public uint GetChecksum()
+    {
+        byte[] buffer = new byte[0x2A4 * 4];
+        _stream.Position = 0x180;
+        _stream.Read(buffer, 0, buffer.Length);
+
+        uint checksum = 0x12345678;
+        for (int i = 0; i < buffer.Length; i += 4)
+        {
+            // Skip the location where the checksum itself is stored.
+            if (i == 36) i += 4; // Tenth word in the buffer, so index is 4 * (10 - 1).
+
+            byte[] wordBytes = buffer[i..(i + 4)];
+            uint word = BitConverter.ToUInt32(wordBytes, 0);
+            checksum = (checksum + word) & 0xFFFFFFFF;
+        }
+
+        return checksum;
     }
 }
