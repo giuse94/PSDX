@@ -32,3 +32,16 @@ public class PsxSaveData
         return System.Text.Encoding.ASCII.GetString(buffer);
     }
 }
+
+public class CrashBandicoot2SaveData : PsxSaveData
+{
+    private const string serialNumber = "BESCES-00967"; // Only the European version is currently supported.
+
+    public CrashBandicoot2SaveData(Stream s) : base(s)
+    {
+        if (!GetFileName().StartsWith(serialNumber))
+        {
+            throw new ArgumentException("Only the European version of Crash Bandicoot 2 is currently supported.", nameof(s));
+        }
+    }
+}
