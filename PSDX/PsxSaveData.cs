@@ -11,7 +11,7 @@ public class PsxSaveData
     protected MemoryStream _stream = new(_saveDataLength);
 
     // Return a copy so that consumers won't interfere.
-    public MemoryStream Stream => new MemoryStream(_stream.ToArray());
+    public virtual MemoryStream Stream => new MemoryStream(_stream.ToArray());
 
     public PsxSaveData(Stream s)
     {
@@ -40,6 +40,15 @@ public class CrashBandicoot2SaveData : PsxSaveData
     private const int _checksumOffset = 0x1A4;
 
     private const int _akuAkuOffset = 0x1B4;
+
+    public override MemoryStream Stream
+    {
+        get
+        {
+            SetChecksum(GetChecksum());
+            return new MemoryStream(_stream.ToArray());
+        }
+    }
 
     public CrashBandicoot2SaveData(Stream s) : base(s)
     {
