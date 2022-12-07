@@ -35,13 +35,13 @@ public class PsxSaveData
 
 public class CrashBandicoot2SaveData : PsxSaveData
 {
-    private const string serialNumber = "BESCES-00967"; // Only the European version is currently supported.
+    private const string _serialNumber = "BESCES-00967"; // Only the European version is currently supported.
 
     private const int _akuAkuOffset = 0x1B4;
 
     public CrashBandicoot2SaveData(Stream s) : base(s)
     {
-        if (!GetFileName().StartsWith(serialNumber))
+        if (!GetFileName().StartsWith(_serialNumber))
         {
             throw new ArgumentException("Only the European version of Crash Bandicoot 2 is currently supported.", nameof(s));
         }
