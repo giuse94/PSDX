@@ -1,4 +1,4 @@
-﻿namespace PSDX;
+namespace PSDX;
 
 public class PsxSaveData
 {
@@ -37,6 +37,8 @@ public class CrashBandicoot2SaveData : PsxSaveData
 {
     private const string _serialNumber = "BESCES-00967"; // Only the European version is currently supported.
 
+    private const int _checksumOffset = 0x1A4;
+
     private const int _akuAkuOffset = 0x1B4;
 
     public CrashBandicoot2SaveData(Stream s) : base(s)
@@ -66,6 +68,13 @@ public class CrashBandicoot2SaveData : PsxSaveData
         }
 
         return checksum;
+    }
+
+    public void SetChecksum(uint checksum)
+    {
+        _stream.Position = _checksumOffset;
+        byte[] bytes = BitConverter.GetBytes(checksum);
+        _stream.Write(bytes, 0, bytes.Length);
     }
 
     public int GetAkuAkuMasks()
