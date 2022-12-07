@@ -1,4 +1,4 @@
-namespace PSDX;
+﻿namespace PSDX;
 
 public class PsxSaveData
 {
@@ -90,5 +90,12 @@ public class CrashBandicoot2SaveData : PsxSaveData
     {
         _stream.Position = _akuAkuOffset;
         return _stream.ReadByte();
+    }
+
+    public void SetAkuAkuMasks(int number)
+    {
+        _stream.Position = _akuAkuOffset;
+        byte[] bytes = BitConverter.GetBytes(number);
+        _stream.Write(bytes, 0, bytes.Length);
     }
 }
