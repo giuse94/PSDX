@@ -37,6 +37,8 @@ public class CrashBandicoot2SaveData : PsxSaveData
 {
     private const string serialNumber = "BESCES-00967"; // Only the European version is currently supported.
 
+    private const int _akuAkuOffset = 0x1B4;
+
     public CrashBandicoot2SaveData(Stream s) : base(s)
     {
         if (!GetFileName().StartsWith(serialNumber))
@@ -64,5 +66,11 @@ public class CrashBandicoot2SaveData : PsxSaveData
         }
 
         return checksum;
+    }
+
+    public int GetAkuAkuMasks()
+    {
+        _stream.Position = _akuAkuOffset;
+        return _stream.ReadByte();
     }
 }
