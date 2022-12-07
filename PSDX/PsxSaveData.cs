@@ -11,7 +11,7 @@ public class PsxSaveData
     protected MemoryStream _stream = new(_saveDataLength);
 
     // Return a copy so that consumers won't interfere.
-    private MemoryStream Stream => new MemoryStream(_stream.ToArray());
+    public MemoryStream Stream => new MemoryStream(_stream.ToArray());
 
     public PsxSaveData(Stream s)
     {
