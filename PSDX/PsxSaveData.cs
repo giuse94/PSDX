@@ -1,4 +1,4 @@
-﻿namespace PSDX;
+namespace PSDX;
 
 /// <summary>
 /// Provides methods for accessing and editing the header of PSX save data files, which is common to all games.
@@ -18,7 +18,7 @@ public class PsxSaveData
     /// Gets the stream containing the changes (if any) made to the save data file.
     /// </summary>
     // Return a copy so that consumers won't interfere.
-    public virtual MemoryStream Stream => new(_stream.ToArray());
+    public virtual MemoryStream GetStream() => new(_stream.ToArray());
 
     /// <summary>
     /// Initializes a new instance of the <c>PsxSaveData</c> class with the content of the provided stream.
@@ -62,15 +62,6 @@ public class CrashBandicoot2SaveData : PsxSaveData
 
     private const int _akuAkuOffset = 0x1B4;
 
-    public override MemoryStream Stream
-    {
-        get
-        {
-            SetChecksum(GetChecksum());
-            return new MemoryStream(_stream.ToArray());
-        }
-    }
-
     /// <summary>
     /// Initializes a new instance of the <c>CrashBandicoot2SaveData</c> class with the content of the provided stream.
     /// </summary>
@@ -87,6 +78,12 @@ public class CrashBandicoot2SaveData : PsxSaveData
         {
             throw new ArgumentException("Only the European version of Crash Bandicoot 2 is currently supported.", nameof(s));
         }
+    }
+
+    public override MemoryStream GetStream()
+    {
+        SetChecksum(GetChecksum());
+        return new MemoryStream(_stream.ToArray());
     }
 
     /// <summary>
@@ -117,7 +114,7 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// <summary>
     /// Sets the checksum used by the game to test for data integrity. An incorrect value will invalidate the save data,
     /// i.e., the game will not load it.<br/> There is no need to call this method: the right checksum is automatically
-    /// computed and applied to the save data when the <see cref="Stream"/> property is retrieved. The method is
+    /// computed and applied to the save data when the <see cref="GetStream()"/> method is called. The method is
     /// provided to allow for experiments.
     /// </summary>
     /// <param name="checksum">The checksum to store in the save data file.</param>
