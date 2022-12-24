@@ -1,4 +1,4 @@
-namespace PSDX;
+﻿namespace PSDX;
 
 /// <summary>
 /// Provides methods for accessing and editing the header of PSX save data files, which is common to all games.
@@ -63,6 +63,12 @@ public class CrashBandicoot2SaveData : PsxSaveData
     private const int _akuAkuOffset = 0x1B4;
 
     /// <summary>
+    /// Gets or sets a value indicating whether <see cref="GetStream"/> should compute the checksum when called.
+    /// The default value is <see langword="true"/>. See also <see cref="SetChecksum"/>.
+    /// </summary>
+    public bool ComputeChecksum { get; set; } = true;
+
+    /// <summary>
     /// Initializes a new instance of the <c>CrashBandicoot2SaveData</c> class with the content of the provided stream.
     /// </summary>
     /// <remarks>Only the European version of Crash Bandicoot 2 is currently supported.</remarks>
@@ -82,7 +88,8 @@ public class CrashBandicoot2SaveData : PsxSaveData
 
     public override MemoryStream GetStream()
     {
-        SetChecksum(GetChecksum());
+        if (ComputeChecksum) SetChecksum(GetChecksum());
+
         return new MemoryStream(_stream.ToArray());
     }
 
@@ -113,9 +120,12 @@ public class CrashBandicoot2SaveData : PsxSaveData
 
     /// <summary>
     /// Sets the checksum used by the game to test for data integrity. An incorrect value will invalidate the save data,
-    /// i.e., the game will not load it.<br/> There is no need to call this method: the right checksum is automatically
-    /// computed and applied to the save data when the <see cref="GetStream()"/> method is called. The method is
-    /// provided to allow for experiments.
+    /// i.e., the game will not load it.<br/>There is no need to call this method: the right checksum is by default
+    /// computed and applied to the save data when the <see cref="GetStream()"/> method is called, unless the
+    /// <see cref="ComputeChecksum"/> property has been set to <see langword="false"/>.<br/>This method is provided
+    /// to allow for experiments. To take effect, the <see cref="ComputeChecksum"/> property must be set to
+    /// <see langword="false"/> before calling <see cref="GetStream()"/>, otherwise the provided
+    /// <paramref name="checksum"/> will be overwritten by the correct value.
     /// </summary>
     /// <param name="checksum">The checksum to store in the save data file.</param>
     public void SetChecksum(uint checksum)
