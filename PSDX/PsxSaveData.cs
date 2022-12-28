@@ -6,11 +6,17 @@
 /// <remarks>Only Single Save Format files (.MCS) are supported.</remarks>
 public class PsxSaveData
 {
-    private const int _saveDataLength = 8320; // 8192 (1 block) + 128 (header sector) bytes.
+    /// <summary>
+    /// 8192 (1 block) + 128 (header sector) bytes.
+    /// </summary>
+    private const int _saveDataLength = 8320;
 
     private const int _fileNameOffset = 0xA;
 
-    private const int _fileNameLength = 20; // 20 bytes, discarding the null-terminator.
+    /// <summary>
+    /// 20 bytes, discarding the null-terminator.
+    /// </summary>
+    private const int _fileNameLength = 20;
 
     protected MemoryStream Stream { get; } = new(_saveDataLength);
 
@@ -60,7 +66,10 @@ public class PsxSaveData
 /// </summary>
 public class CrashBandicoot2SaveData : PsxSaveData
 {
-    private const string _serialNumber = "BESCES-00967"; // Only the European version is currently supported.
+    /// <summary>
+    /// Only the European version is currently supported.
+    /// </summary>
+    private const string _serialNumber = "BESCES-00967";
 
     private const int _checksumOffset = 0x1A4;
 
