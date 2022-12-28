@@ -12,7 +12,7 @@ public class PsxSaveData
 
     private const int _fileNameLength = 20; // 20 bytes, discarding the null-terminator.
 
-    protected MemoryStream _stream = new(_saveDataLength);
+    protected MemoryStream Stream { get; } = new(_saveDataLength);
 
     /// <summary>
     /// Initializes a new instance of the <c>PsxSaveData</c> class with the content of the provided stream.
@@ -30,23 +30,23 @@ public class PsxSaveData
             throw new ArgumentException($"The size of Single Save Format files (.MCS) must be {_saveDataLength} bytes.", nameof(s));
         }
         // Copy the stream so that we won't change the original data.
-        s.CopyTo(_stream);
+        s.CopyTo(Stream);
     }
 
     /// <summary>
     /// Gets the stream containing the changes (if any) made to the save data file.
     /// </summary>
     // Return a copy so that consumers won't interfere.
-    public virtual MemoryStream GetStream() => new(_stream.ToArray());
+    public virtual MemoryStream GetStream() => new(Stream.ToArray());
 
     /// <summary>
     /// Gets the file name of the current game.
     /// </summary>
     public string GetFileName()
     {
-        _stream.Position = _fileNameOffset;
+        Stream.Position = _fileNameOffset;
         byte[] buffer = new byte[_fileNameLength];
-        _stream.Read(buffer, 0, _fileNameLength);
+        Stream.Read(buffer, 0, _fileNameLength);
         return System.Text.Encoding.ASCII.GetString(buffer);
     }
 }
@@ -90,7 +90,7 @@ public class CrashBandicoot2SaveData : PsxSaveData
     {
         if (ComputeChecksum) SetChecksum(GetChecksum());
 
-        return new MemoryStream(_stream.ToArray());
+        return new MemoryStream(Stream.ToArray());
     }
 
     /// <summary>
@@ -101,8 +101,8 @@ public class CrashBandicoot2SaveData : PsxSaveData
     public uint GetChecksum()
     {
         byte[] buffer = new byte[0x2A4 * 4];
-        _stream.Position = 0x180;
-        _stream.Read(buffer, 0, buffer.Length);
+        Stream.Position = 0x180;
+        Stream.Read(buffer, 0, buffer.Length);
 
         uint checksum = 0x12345678;
         for (int i = 0; i < buffer.Length; i += 4)
@@ -130,9 +130,9 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// <param name="checksum">The checksum to store in the save data file.</param>
     public void SetChecksum(uint checksum)
     {
-        _stream.Position = _checksumOffset;
+        Stream.Position = _checksumOffset;
         byte[] bytes = BitConverter.GetBytes(checksum);
-        _stream.Write(bytes, 0, bytes.Length);
+        Stream.Write(bytes, 0, bytes.Length);
     }
 
     /// <summary>
@@ -140,8 +140,8 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// </summary>
     public int GetAkuAkuMasks()
     {
-        _stream.Position = _akuAkuOffset;
-        return _stream.ReadByte();
+        Stream.Position = _akuAkuOffset;
+        return Stream.ReadByte();
     }
 
     /// <summary>
@@ -150,8 +150,8 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// <param name="number">The number of Aku Aku masks to store.</param>
     public void SetAkuAkuMasks(int number)
     {
-        _stream.Position = _akuAkuOffset;
+        Stream.Position = _akuAkuOffset;
         byte[] bytes = BitConverter.GetBytes(number);
-        _stream.Write(bytes, 0, bytes.Length);
+        Stream.Write(bytes, 0, bytes.Length);
     }
 }
