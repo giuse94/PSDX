@@ -56,7 +56,7 @@ public class PsxSaveData
     {
         Stream.Position = _fileNameOffset;
         byte[] buffer = new byte[_fileNameLength];
-        Stream.Read(buffer, 0, _fileNameLength);
+        Stream.ReadExactly(buffer, 0, _fileNameLength);
         return System.Text.Encoding.ASCII.GetString(buffer);
     }
 }
@@ -118,7 +118,7 @@ public class CrashBandicoot2SaveData : PsxSaveData
     {
         byte[] buffer = new byte[0x2A4 * 4];
         Stream.Position = 0x180;
-        Stream.Read(buffer, 0, buffer.Length);
+        Stream.ReadExactly(buffer, 0, buffer.Length);
 
         uint checksum = 0x12345678;
         for (int i = 0; i < buffer.Length; i += 4)
