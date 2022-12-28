@@ -1,4 +1,4 @@
-﻿namespace PSDX;
+namespace PSDX;
 
 /// <summary>
 /// Provides methods for accessing and editing the header of PSX save data files, which is common to all games.
@@ -24,7 +24,11 @@ public class PsxSaveData
     /// </exception>
     public PsxSaveData(Stream s)
     {
-        if (s == null) throw new ArgumentNullException(nameof(s));
+        if (s == null)
+        {
+            throw new ArgumentNullException(nameof(s));
+        }
+
         if (s.Length != _saveDataLength)
         {
             throw new ArgumentException($"The size of Single Save Format files (.MCS) must be {_saveDataLength} bytes.", nameof(s));
@@ -88,7 +92,10 @@ public class CrashBandicoot2SaveData : PsxSaveData
 
     public override MemoryStream GetStream()
     {
-        if (ComputeChecksum) SetChecksum(GetChecksum());
+        if (ComputeChecksum)
+        {
+            SetChecksum(GetChecksum());
+        }
 
         return new MemoryStream(Stream.ToArray());
     }
@@ -108,7 +115,10 @@ public class CrashBandicoot2SaveData : PsxSaveData
         for (int i = 0; i < buffer.Length; i += 4)
         {
             // Skip the location where the checksum itself is stored.
-            if (i == 36) i += 4; // Tenth word in the buffer, so index is 4 * (10 - 1).
+            if (i == 36)
+            {
+                i += 4; // Tenth word in the buffer, so index is 4 * (10 - 1).
+            }
 
             byte[] wordBytes = buffer[i..(i + 4)];
             uint word = BitConverter.ToUInt32(wordBytes, 0);
