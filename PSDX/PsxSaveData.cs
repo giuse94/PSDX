@@ -1,4 +1,4 @@
-namespace PSDX;
+﻿namespace PSDX;
 
 /// <summary>
 /// Provides methods for accessing and editing the header of PSX save data files, which is common to all games.
@@ -84,7 +84,7 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// </exception>
     public CrashBandicoot2SaveData(Stream s) : base(s)
     {
-        if (!GetFileName().StartsWith(_serialNumber))
+        if (!GetFileName().StartsWith(_serialNumber, StringComparison.InvariantCulture))
         {
             throw new ArgumentException("Only the European version of Crash Bandicoot 2 is currently supported.", nameof(s));
         }
