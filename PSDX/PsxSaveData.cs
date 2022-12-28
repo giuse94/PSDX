@@ -15,12 +15,6 @@ public class PsxSaveData
     protected MemoryStream _stream = new(_saveDataLength);
 
     /// <summary>
-    /// Gets the stream containing the changes (if any) made to the save data file.
-    /// </summary>
-    // Return a copy so that consumers won't interfere.
-    public virtual MemoryStream GetStream() => new(_stream.ToArray());
-
-    /// <summary>
     /// Initializes a new instance of the <c>PsxSaveData</c> class with the content of the provided stream.
     /// </summary>
     /// <param name="s">A stream containing any PSX game save data.</param>
@@ -38,6 +32,12 @@ public class PsxSaveData
         // Copy the stream so that we won't change the original data.
         s.CopyTo(_stream);
     }
+
+    /// <summary>
+    /// Gets the stream containing the changes (if any) made to the save data file.
+    /// </summary>
+    // Return a copy so that consumers won't interfere.
+    public virtual MemoryStream GetStream() => new(_stream.ToArray());
 
     /// <summary>
     /// Gets the file name of the current game.
