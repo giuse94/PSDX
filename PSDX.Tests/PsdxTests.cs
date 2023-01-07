@@ -9,7 +9,7 @@ public class PsdxTests
     {
         static void CodeToTest() => _ = new PsxSaveData(null!); // Intentionally suppress the (right) warning.
 
-        Assert.Throws<ArgumentNullException>(CodeToTest);
+        _ = Assert.Throws<ArgumentNullException>(CodeToTest);
     }
 
     [Fact]
@@ -17,6 +17,6 @@ public class PsdxTests
     {
         static void CodeToTest() => _ = new PsxSaveData(new MemoryStream());
 
-        Assert.Throws<ArgumentException>(CodeToTest);
+        _ = Assert.Throws<ArgumentException>(CodeToTest);
     }
 }
