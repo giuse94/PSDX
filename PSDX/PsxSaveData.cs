@@ -1,4 +1,7 @@
-﻿namespace PSDX;
+using System;
+using System.IO;
+
+namespace PSDX;
 
 /// <summary>
 /// Provides methods for accessing and editing the header of PSX save data files, which is common to all games.
