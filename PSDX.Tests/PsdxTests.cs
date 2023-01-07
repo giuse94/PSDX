@@ -11,4 +11,12 @@ public class PsdxTests
 
         Assert.Throws<ArgumentNullException>(CodeToTest);
     }
+
+    [Fact]
+    public void PsxSaveDataCtorThrowsAeWithWrongStream()
+    {
+        static void CodeToTest() => _ = new PsxSaveData(new MemoryStream());
+
+        Assert.Throws<ArgumentException>(CodeToTest);
+    }
 }
