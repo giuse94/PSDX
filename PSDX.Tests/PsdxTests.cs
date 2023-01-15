@@ -49,4 +49,15 @@ public class PsdxTests
         var ex = Assert.Throws<ArgumentException>(CodeToTest);
         Assert.StartsWith("Only the European version of Crash Bandicoot 2", ex.Message, StringComparison.InvariantCultureIgnoreCase);
     }
+
+    [Fact]
+    public void GetAkuAkuMasksReturns2()
+    {
+        using var fs = new FileStream("cb2.mcs", FileMode.Open);
+        var cb2 = new CrashBandicoot2SaveData(fs);
+
+        int masks = cb2.GetAkuAkuMasks();
+
+        Assert.Equal(2, masks);
+    }
 }

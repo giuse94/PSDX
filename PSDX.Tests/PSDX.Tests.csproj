@@ -26,6 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="cb2.mcs" CopyToOutputDirectory="PreserveNewest" />
     <None Include="cb3.mcs" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
