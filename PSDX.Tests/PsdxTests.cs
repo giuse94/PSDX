@@ -43,7 +43,10 @@ public class PsdxTests
     public void Cb2SaveDataCtorThrowsAeWithWrongFile()
     {
         using var fs = new FileStream("cb3.mcs", FileMode.Open);
-        var ex = Assert.Throws<ArgumentException>(() => new CrashBandicoot2SaveData(fs));
+
+        void CodeToTest() => _ = new CrashBandicoot2SaveData(fs);
+
+        var ex = Assert.Throws<ArgumentException>(CodeToTest);
         Assert.StartsWith("Only the European version of Crash Bandicoot 2", ex.Message, StringComparison.InvariantCultureIgnoreCase);
     }
 }
