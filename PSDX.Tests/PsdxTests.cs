@@ -37,4 +37,11 @@ public class PsdxTests
 
         _ = Assert.Throws<ArgumentException>(CodeToTest);
     }
+
+    [Fact]
+    public void Cb2SaveDataCtorThrowsAeWithWrongFile()
+    {
+        using var fs = new FileStream("cb3.mcs", FileMode.Open);
+        _ = Assert.Throws<ArgumentException>(() => new CrashBandicoot2SaveData(fs));
+    }
 }

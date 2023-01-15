@@ -25,4 +25,8 @@
     <ProjectReference Include="..\PSDX\PSDX.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="cb3.mcs" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>
