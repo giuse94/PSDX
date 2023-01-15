@@ -35,13 +35,15 @@ public class PsdxTests
     {
         static void CodeToTest() => _ = new CrashBandicoot2SaveData(new MemoryStream());
 
-        _ = Assert.Throws<ArgumentException>(CodeToTest);
+        var ex = Assert.Throws<ArgumentException>(CodeToTest);
+        Assert.StartsWith("The size of Single Save Format files", ex.Message, StringComparison.InvariantCultureIgnoreCase);
     }
 
     [Fact]
     public void Cb2SaveDataCtorThrowsAeWithWrongFile()
     {
         using var fs = new FileStream("cb3.mcs", FileMode.Open);
-        _ = Assert.Throws<ArgumentException>(() => new CrashBandicoot2SaveData(fs));
+        var ex = Assert.Throws<ArgumentException>(() => new CrashBandicoot2SaveData(fs));
+        Assert.StartsWith("Only the European version of Crash Bandicoot 2", ex.Message, StringComparison.InvariantCultureIgnoreCase);
     }
 }
