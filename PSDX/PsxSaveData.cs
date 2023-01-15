@@ -162,8 +162,10 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// </summary>
     public int GetAkuAkuMasks()
     {
+        byte[] bytes = new byte[sizeof(int)];
         Stream.Position = _akuAkuOffset;
-        return Stream.ReadByte();
+        Stream.ReadExactly(bytes, 0, bytes.Length);
+        return BitConverter.ToInt32(bytes);
     }
 
     /// <summary>
