@@ -60,4 +60,16 @@ public class PsdxTests
 
         Assert.Equal(2, masks);
     }
+
+    [Theory]
+    [InlineData(-1), InlineData(0), InlineData(1), InlineData(2), InlineData(3), InlineData(4)]
+    public void TestSetAkuAkuMasks(int masksToSet)
+    {
+        using var fs = new FileStream("cb2.mcs", FileMode.Open);
+        var cb2 = new CrashBandicoot2SaveData(fs);
+
+        cb2.SetAkuAkuMasks(masksToSet);
+
+        Assert.Equal(masksToSet, cb2.GetAkuAkuMasks());
+    }
 }
