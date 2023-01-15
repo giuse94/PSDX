@@ -72,4 +72,15 @@ public class PsdxTests
 
         Assert.Equal(masksToSet, cb2.GetAkuAkuMasks());
     }
+
+    [Fact]
+    public void TestGetChecksum()
+    {
+        using var fs = new FileStream("cb2.mcs", FileMode.Open);
+        var cb2 = new CrashBandicoot2SaveData(fs);
+
+        uint checksum = cb2.GetChecksum();
+
+        Assert.Equal(0xE2BC35B9, checksum);
+    }
 }
