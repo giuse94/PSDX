@@ -128,4 +128,19 @@ public class PsdxTests
             Assert.Equal(randomChecksum, storedChecksum);
         }
     }
+
+    [Fact]
+    public void CallersCantInterfereWithStream()
+    {
+        using var fs = new FileStream("cb2.mcs", FileMode.Open);
+        var cb2 = new CrashBandicoot2SaveData(fs);
+        var stream = cb2.GetStream();
+
+        stream.Position = 0;
+        byte[] bytes = new byte[stream.Length];
+        stream.Write(bytes);
+
+        Assert.Equal(2, cb2.GetAkuAkuMasks());
+        Assert.Equal(0xE2BC35B9, cb2.GetChecksum());
+    }
 }
