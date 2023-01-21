@@ -83,4 +83,16 @@ public class PsdxTests
 
         Assert.Equal(0xE2BC35B9, checksum);
     }
+
+    [Theory]
+    [InlineData(0), InlineData(7), InlineData(0xA14DC582), InlineData(uint.MaxValue)]
+    public void TestSetChecksum(uint checksumToSet)
+    {
+        using var fs = new FileStream("cb2.mcs", FileMode.Open);
+        var cb2 = new CrashBandicoot2SaveData(fs);
+
+        cb2.SetChecksum(checksumToSet);
+
+        Assert.Equal(checksumToSet, cb2.GetChecksum());
+    }
 }
