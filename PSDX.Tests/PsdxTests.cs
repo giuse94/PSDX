@@ -106,4 +106,26 @@ public class PsdxTests
 
         Assert.Equal(0xE2BC35B9, checksum);
     }
+
+    [Theory]
+    [InlineData(false), InlineData(true)]
+    public void TestGetStreamBehavior(bool computeRightChecksum)
+    {
+        using var fs = new FileStream("cb2.mcs", FileMode.Open);
+        var cb2 = new CrashBandicoot2SaveData(fs) { ComputeRightChecksum = computeRightChecksum };
+        const uint randomChecksum = 491;
+        cb2.SetChecksum(randomChecksum);
+
+        _ = cb2.GetStream();
+        uint storedChecksum = cb2.GetChecksum();
+
+        if (computeRightChecksum)
+        {
+            Assert.NotEqual(randomChecksum, storedChecksum);
+        }
+        else
+        {
+            Assert.Equal(randomChecksum, storedChecksum);
+        }
+    }
 }
