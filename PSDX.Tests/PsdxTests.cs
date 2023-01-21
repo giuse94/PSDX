@@ -95,4 +95,15 @@ public class PsdxTests
 
         Assert.Equal(checksumToSet, cb2.GetChecksum());
     }
+
+    [Fact]
+    public void TestComputeChecksum()
+    {
+        using var fs = new FileStream("cb2.mcs", FileMode.Open);
+        var cb2 = new CrashBandicoot2SaveData(fs);
+
+        uint checksum = cb2.ComputeChecksum();
+
+        Assert.Equal(0xE2BC35B9, checksum);
+    }
 }
