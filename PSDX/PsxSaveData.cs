@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 
 namespace PSDX;
@@ -61,7 +61,7 @@ public class PsxSaveData
     {
         Stream.Position = _fileNameOffset;
         byte[] buffer = new byte[_fileNameLength];
-        Stream.ReadExactly(buffer, 0, _fileNameLength);
+        Stream.ReadExactly(buffer);
         return System.Text.Encoding.ASCII.GetString(buffer);
     }
 }
@@ -125,7 +125,7 @@ public class CrashBandicoot2SaveData : PsxSaveData
     {
         byte[] bytes = new byte[sizeof(uint)];
         Stream.Position = _checksumOffset;
-        Stream.ReadExactly(bytes, 0, bytes.Length);
+        Stream.ReadExactly(bytes);
         return BitConverter.ToUInt32(bytes);
     }
 
@@ -139,7 +139,7 @@ public class CrashBandicoot2SaveData : PsxSaveData
     {
         byte[] buffer = new byte[0x2A4 * 4];
         Stream.Position = 0x180;
-        Stream.ReadExactly(buffer, 0, buffer.Length);
+        Stream.ReadExactly(buffer);
 
         uint checksum = 0x12345678;
         for (int i = 0; i < buffer.Length; i += 4)
@@ -173,7 +173,7 @@ public class CrashBandicoot2SaveData : PsxSaveData
     {
         Stream.Position = _checksumOffset;
         byte[] bytes = BitConverter.GetBytes(checksum);
-        Stream.Write(bytes, 0, bytes.Length);
+        Stream.Write(bytes);
     }
 
     /// <summary>
@@ -183,7 +183,7 @@ public class CrashBandicoot2SaveData : PsxSaveData
     {
         byte[] bytes = new byte[sizeof(int)];
         Stream.Position = _akuAkuOffset;
-        Stream.ReadExactly(bytes, 0, bytes.Length);
+        Stream.ReadExactly(bytes);
         return BitConverter.ToInt32(bytes);
     }
 
@@ -195,6 +195,6 @@ public class CrashBandicoot2SaveData : PsxSaveData
     {
         Stream.Position = _akuAkuOffset;
         byte[] bytes = BitConverter.GetBytes(number);
-        Stream.Write(bytes, 0, bytes.Length);
+        Stream.Write(bytes);
     }
 }
