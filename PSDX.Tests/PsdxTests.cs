@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using Xunit;
 
 namespace PSDX.Tests;
@@ -142,5 +143,23 @@ public class PsdxTests
 
         Assert.Equal(2, cb2.GetAkuAkuMasks());
         Assert.Equal(0xE2BC35B9, cb2.GetChecksum());
+    }
+
+    [Fact]
+    public void OriginalDataIsNotChanged()
+    {
+        using var fs = new FileStream("cb2.mcs", FileMode.Open);
+        var ms = new MemoryStream();
+        fs.CopyTo(ms);
+        byte[] originalData = ms.ToArray();
+
+        var cb2 = new CrashBandicoot2SaveData(fs);
+        cb2.SetAkuAkuMasks(1);
+        cb2.SetChecksum(515);
+
+        ms = new MemoryStream();
+        fs.Position = 0;
+        fs.CopyTo(ms);
+        Assert.True(originalData.SequenceEqual(ms.ToArray()));
     }
 }
