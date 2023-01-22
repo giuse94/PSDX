@@ -42,7 +42,9 @@ public class PsxSaveData
         {
             throw new ArgumentException($"The size of Single Save Format files (.MCS) must be {_saveDataLength} bytes.", nameof(s));
         }
+
         // Copy the stream so that we won't change the original data.
+        s.Position = 0;
         s.CopyTo(Stream);
     }
 
