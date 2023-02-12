@@ -116,6 +116,32 @@ public class CrashBandicoot2SaveData : PsxSaveData
     };
 
     /// <summary>
+    /// Checks whether the specified <paramref name="level"/> number exists, and throws an exception if not.
+    /// </summary>
+    /// <param name="level">The number of the level to check for.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The specified <paramref name="level"/> number is less than one or greater than twenty-seven.</exception>
+    private static void CheckLevelNumber(int level)
+    {
+        if (level < 1 || level > _maxLevelNumber)
+        {
+            throw new ArgumentOutOfRangeException(nameof(level), level, "The specified level does not exist.");
+        }
+    }
+
+    /// <summary>
+    /// Checks whether the specified <paramref name="level"/> number contains a crystal, and throws an exception if not.
+    /// </summary>
+    /// <param name="level">The number of the level to check for.</param>
+    /// <exception cref="InvalidOperationException">The specified <paramref name="level"/> number does not contain a crystal.</exception>
+    private static void CheckCrystalNumber(int level)
+    {
+        if (level == 26 || level == 27)
+        {
+            throw new InvalidOperationException($"Level {level} does not contain a crystal.");
+        }
+    }
+
+    /// <summary>
     /// Represents the two types of gem available in the game.
     /// </summary>
     public enum GemType
@@ -259,10 +285,7 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// <exception cref="ArgumentOutOfRangeException">The specified <paramref name="level"/> number is less than one or greater than twenty-seven.</exception>
     public bool GetProgressStatus(int level)
     {
-        if (level < 1 || level > _maxLevelNumber)
-        {
-            throw new ArgumentOutOfRangeException(nameof(level), level, "The specified level does not exist.");
-        }
+        CheckLevelNumber(level);
 
         (byte levelProgressFlag, byte levelProgressOffset) = _commonInfo[level - 1];
         Stream.Position = _progressOffset + levelProgressOffset;
@@ -279,10 +302,7 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// <exception cref="ArgumentOutOfRangeException">The specified level number is less than one or greater than twenty-seven.</exception>
     public void SetProgressStatus(int level, bool traversed)
     {
-        if (level < 1 || level > _maxLevelNumber)
-        {
-            throw new ArgumentOutOfRangeException(nameof(level), level, "The specified level does not exist.");
-        }
+        CheckLevelNumber(level);
 
         (byte levelProgressFlag, byte levelProgressOffset) = _commonInfo[level - 1];
         int progressOffset = _progressOffset + levelProgressOffset;
@@ -310,14 +330,8 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// <exception cref="InvalidOperationException">The specified <paramref name="level"/> does not contain a crystal.</exception>
     public bool GetCrystalStatus(int level)
     {
-        if (level < 1 || level > _maxLevelNumber)
-        {
-            throw new ArgumentOutOfRangeException(nameof(level), level, "The specified level does not exist.");
-        }
-        if (level == 26 || level == 27)
-        {
-            throw new InvalidOperationException($"Level {level} does not contain a crystal.");
-        }
+        CheckLevelNumber(level);
+        CheckCrystalNumber(level);
 
         (byte levelCrystalFlag, byte levelCrystalOffset) = _commonInfo[level - 1];
         Stream.Position = _crystalsOffset + levelCrystalOffset;
@@ -334,14 +348,8 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// <exception cref="InvalidOperationException">The specified <paramref name="level"/> does not contain a crystal.</exception>
     public void SetCrystalStatus(int level, bool collected)
     {
-        if (level < 1 || level > _maxLevelNumber)
-        {
-            throw new ArgumentOutOfRangeException(nameof(level), level, "The specified level does not exist.");
-        }
-        if (level == 26 || level == 27)
-        {
-            throw new InvalidOperationException($"Level {level} does not contain a crystal.");
-        }
+        CheckLevelNumber(level);
+        CheckCrystalNumber(level);
 
         (byte levelCrystalFlag, byte levelCrystalOffset) = _commonInfo[level - 1];
         int crystalOffset = _crystalsOffset + levelCrystalOffset;
@@ -373,10 +381,7 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// <exception cref="InvalidEnumArgumentException">The specified <paramref name="gemType"/> is not a valid enum value.</exception>
     public bool GetGemStatus(int level, GemType gemType)
     {
-        if (level < 1 || level > _maxLevelNumber)
-        {
-            throw new ArgumentOutOfRangeException(nameof(level), level, "The specified level does not exist.");
-        }
+        CheckLevelNumber(level);
 
         (byte Flag, byte Offset) levelGemInfo;
         if (gemType == GemType.AllBoxesGem)
@@ -415,10 +420,7 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// <exception cref="InvalidEnumArgumentException">The specified <paramref name="gemType"/> is not a valid enum value.</exception>
     public void SetGemStatus(int level, GemType gemType, bool collected)
     {
-        if (level < 1 || level > _maxLevelNumber)
-        {
-            throw new ArgumentOutOfRangeException(nameof(level), level, "The specified level does not exist.");
-        }
+        CheckLevelNumber(level);
 
         (byte Flag, byte Offset) levelGemInfo;
         if (gemType == GemType.AllBoxesGem)
