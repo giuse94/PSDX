@@ -142,6 +142,40 @@ public class CrashBandicoot2SaveData : PsxSaveData
     }
 
     /// <summary>
+    /// Gets information about the specified gem type for the specified <paramref name="level"/> number.
+    /// </summary>
+    /// <param name="level">The number of the level to get the gem information of.</param>
+    /// <param name="gemType">The type of gem to get the information of.</param>
+    /// <returns>The flag and relative offset of the specified gem type for the specified <paramref name="level"/> number.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The specified <paramref name="level"/> number is less than one or greater than twenty-seven.</exception>
+    /// <exception cref="InvalidOperationException">
+    /// <paramref name="gemType"/> is <see cref="GemType.SecondGem"/> and the specified <paramref name="level"/> does not contain that type of gem.
+    /// </exception>
+    /// <exception cref="InvalidEnumArgumentException">The specified <paramref name="gemType"/> is not a valid enum value.</exception>
+    private static (byte Flag, byte Offset) GetLevelGemInfo(int level, GemType gemType)
+    {
+        CheckLevelNumber(level);
+
+        if (gemType == GemType.AllBoxesGem)
+        {
+            return _commonInfo[level - 1];
+        }
+
+        if (gemType == GemType.SecondGem)
+        {
+            var levelGemInfo = _secondGemInfo[level - 1];
+            if (levelGemInfo == null)
+            {
+                throw new InvalidOperationException($"Level {level} does not contain the second gem.");
+            }
+
+            return levelGemInfo.Value;
+        }
+
+        throw new InvalidEnumArgumentException(nameof(gemType), (int)gemType, typeof(GemType));
+    }
+
+    /// <summary>
     /// Represents the two types of gem available in the game.
     /// </summary>
     public enum GemType
@@ -383,28 +417,11 @@ public class CrashBandicoot2SaveData : PsxSaveData
     {
         CheckLevelNumber(level);
 
-        (byte Flag, byte Offset) levelGemInfo;
-        if (gemType == GemType.AllBoxesGem)
-        {
-            levelGemInfo = _commonInfo[level - 1];
-        }
-        else if (gemType == GemType.SecondGem)
-        {
-            levelGemInfo = _secondGemInfo[level - 1].GetValueOrDefault();
-        }
-        else
-        {
-            throw new InvalidEnumArgumentException(nameof(gemType), (int)gemType, typeof(GemType));
-        }
+        (byte levelGemFlag, byte levelGemOffset) = GetLevelGemInfo(level, gemType);
 
-        if (levelGemInfo == default)
-        {
-            throw new InvalidOperationException($"Level {level} does not contain the second gem.");
-        }
-
-        Stream.Position = _gemsOffset + levelGemInfo.Offset;
+        Stream.Position = _gemsOffset + levelGemOffset;
         int gemFlag = Stream.ReadByte();
-        return (gemFlag & levelGemInfo.Flag) > 0;
+        return (gemFlag & levelGemFlag) > 0;
     }
 
     /// <summary>
@@ -422,35 +439,18 @@ public class CrashBandicoot2SaveData : PsxSaveData
     {
         CheckLevelNumber(level);
 
-        (byte Flag, byte Offset) levelGemInfo;
-        if (gemType == GemType.AllBoxesGem)
-        {
-            levelGemInfo = _commonInfo[level - 1];
-        }
-        else if (gemType == GemType.SecondGem)
-        {
-            levelGemInfo = _secondGemInfo[level - 1].GetValueOrDefault();
-        }
-        else
-        {
-            throw new InvalidEnumArgumentException(nameof(gemType), (int)gemType, typeof(GemType));
-        }
+        (byte levelGemFlag, byte levelGemOffset) = GetLevelGemInfo(level, gemType);
 
-        if (levelGemInfo == default)
-        {
-            throw new InvalidOperationException($"Level {level} does not contain the second gem.");
-        }
-
-        int gemOffset = _gemsOffset + levelGemInfo.Offset;
+        int gemOffset = _gemsOffset + levelGemOffset;
         Stream.Position = gemOffset;
         int gemFlag = Stream.ReadByte();
         if (collected)
         {
-            gemFlag |= levelGemInfo.Flag;
+            gemFlag |= levelGemFlag;
         }
         else
         {
-            gemFlag &= ~levelGemInfo.Flag;
+            gemFlag &= ~levelGemFlag;
         }
 
         Stream.Position = gemOffset;
