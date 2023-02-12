@@ -176,6 +176,43 @@ public class CrashBandicoot2SaveData : PsxSaveData
     }
 
     /// <summary>
+    /// Determines whether the <paramref name="flag"/> located at the specified <paramref name="offset"/> is on or off.
+    /// </summary>
+    /// <param name="offset">The absolute offset of the flag within the save data file.</param>
+    /// <param name="flag">The value of the flag to test.</param>
+    /// <returns><see langword="true"/> if the flag is on, otherwise <see langword="false"/>.</returns>
+    private bool GetFlag(int offset, int flag)
+    {
+        Stream.Position = offset;
+        int storedFlag = Stream.ReadByte();
+        // We can't just return (storedFlag > 0) because different levels can share the same slot.
+        return (storedFlag & flag) > 0;
+    }
+
+    /// <summary>
+    /// Turns the <paramref name="flag"/> located at the specified <paramref name="offset"/> on or off.
+    /// </summary>
+    /// <param name="offset">The absolute offset of the flag within the save data file.</param>
+    /// <param name="flag">The value of the flag to set.</param>
+    /// <param name="on">Determines whether to turn the flag on or off.</param>
+    private void SetFlag(int offset, int flag, bool on)
+    {
+        Stream.Position = offset;
+        int storedFlag = Stream.ReadByte();
+        if (on)
+        {
+            storedFlag |= flag;
+        }
+        else
+        {
+            storedFlag &= ~flag;
+        }
+
+        Stream.Position = offset;
+        Stream.WriteByte((byte)storedFlag);
+    }
+
+    /// <summary>
     /// Represents the two types of gem available in the game.
     /// </summary>
     public enum GemType
@@ -322,10 +359,8 @@ public class CrashBandicoot2SaveData : PsxSaveData
         CheckLevelNumber(level);
 
         (byte levelProgressFlag, byte levelProgressOffset) = _commonInfo[level - 1];
-        Stream.Position = _progressOffset + levelProgressOffset;
-        int progressFlag = Stream.ReadByte();
-        // We can't just return (progressFlag > 0) because different levels can share the same slot.
-        return (progressFlag & levelProgressFlag) > 0;
+        int progressOffset = _progressOffset + levelProgressOffset;
+        return GetFlag(progressOffset, levelProgressFlag);
     }
 
     /// <summary>
@@ -340,19 +375,7 @@ public class CrashBandicoot2SaveData : PsxSaveData
 
         (byte levelProgressFlag, byte levelProgressOffset) = _commonInfo[level - 1];
         int progressOffset = _progressOffset + levelProgressOffset;
-        Stream.Position = progressOffset;
-        int progressFlag = Stream.ReadByte();
-        if (traversed)
-        {
-            progressFlag |= levelProgressFlag;
-        }
-        else
-        {
-            progressFlag &= ~levelProgressFlag;
-        }
-
-        Stream.Position = progressOffset;
-        Stream.WriteByte((byte)progressFlag);
+        SetFlag(progressOffset, levelProgressFlag, traversed);
     }
 
     /// <summary>
@@ -368,9 +391,8 @@ public class CrashBandicoot2SaveData : PsxSaveData
         CheckCrystalNumber(level);
 
         (byte levelCrystalFlag, byte levelCrystalOffset) = _commonInfo[level - 1];
-        Stream.Position = _crystalsOffset + levelCrystalOffset;
-        int crystalFlag = Stream.ReadByte();
-        return (crystalFlag & levelCrystalFlag) > 0;
+        int crystalOffset = _crystalsOffset + levelCrystalOffset;
+        return GetFlag(crystalOffset, levelCrystalFlag);
     }
 
     /// <summary>
@@ -387,19 +409,7 @@ public class CrashBandicoot2SaveData : PsxSaveData
 
         (byte levelCrystalFlag, byte levelCrystalOffset) = _commonInfo[level - 1];
         int crystalOffset = _crystalsOffset + levelCrystalOffset;
-        Stream.Position = crystalOffset;
-        int crystalFlag = Stream.ReadByte();
-        if (collected)
-        {
-            crystalFlag |= levelCrystalFlag;
-        }
-        else
-        {
-            crystalFlag &= ~levelCrystalFlag;
-        }
-
-        Stream.Position = crystalOffset;
-        Stream.WriteByte((byte)crystalFlag);
+        SetFlag(crystalOffset, levelCrystalFlag, collected);
     }
 
     /// <summary>
@@ -419,9 +429,8 @@ public class CrashBandicoot2SaveData : PsxSaveData
 
         (byte levelGemFlag, byte levelGemOffset) = GetLevelGemInfo(level, gemType);
 
-        Stream.Position = _gemsOffset + levelGemOffset;
-        int gemFlag = Stream.ReadByte();
-        return (gemFlag & levelGemFlag) > 0;
+        int gemOffset = _gemsOffset + levelGemOffset;
+        return GetFlag(gemOffset, levelGemFlag);
     }
 
     /// <summary>
@@ -442,18 +451,6 @@ public class CrashBandicoot2SaveData : PsxSaveData
         (byte levelGemFlag, byte levelGemOffset) = GetLevelGemInfo(level, gemType);
 
         int gemOffset = _gemsOffset + levelGemOffset;
-        Stream.Position = gemOffset;
-        int gemFlag = Stream.ReadByte();
-        if (collected)
-        {
-            gemFlag |= levelGemFlag;
-        }
-        else
-        {
-            gemFlag &= ~levelGemFlag;
-        }
-
-        Stream.Position = gemOffset;
-        Stream.WriteByte((byte)gemFlag);
+        SetFlag(gemOffset, levelGemFlag, collected);
     }
 }
