@@ -371,10 +371,53 @@ public class PsdxTests
         cb2.SetCrystalStatus(2, false);
         cb2.SetGemStatus(2, CrashBandicoot2SaveData.GemType.AllBoxesGem, false);
         cb2.SetGemStatus(2, CrashBandicoot2SaveData.GemType.SecondGem, false);
+        cb2.SetBossStatus(2, false);
 
         Assert.False(cb2.GetProgressStatus(2));
         Assert.False(cb2.GetCrystalStatus(2));
         Assert.False(cb2.GetGemStatus(2, CrashBandicoot2SaveData.GemType.AllBoxesGem));
         Assert.False(cb2.GetGemStatus(2, CrashBandicoot2SaveData.GemType.SecondGem));
+        Assert.False(cb2.GetBossStatus(2));
+    }
+
+    [Theory]
+    [InlineData(-1), InlineData(0), InlineData(6)]
+    public void BossRelatedMethodsThrowAoReWithWrongNumber(int bossNumber)
+    {
+        using var fs = new FileStream("cb2.mcs", FileMode.Open);
+        var cb2 = new CrashBandicoot2SaveData(fs);
+
+        void GetBossStatus() => cb2.GetBossStatus(bossNumber);
+        void SetBossStatus() => cb2.SetBossStatus(bossNumber, true);
+
+        _ = Assert.Throws<ArgumentOutOfRangeException>(GetBossStatus);
+        _ = Assert.Throws<ArgumentOutOfRangeException>(SetBossStatus);
+    }
+
+    [Fact]
+    public void GetBossStatusReturnsFalseForAllBosses()
+    {
+        using var fs = new FileStream("cb2.mcs", FileMode.Open);
+        var cb2 = new CrashBandicoot2SaveData(fs);
+
+        for (int bossNumber = 1; bossNumber < 6; bossNumber++)
+        {
+            bool defeated = cb2.GetBossStatus(bossNumber);
+            Assert.False(defeated);
+        }
+    }
+
+    [Theory]
+    [InlineData(1, false), InlineData(1, true), InlineData(2, false), InlineData(2, true)]
+    [InlineData(3, false), InlineData(3, true), InlineData(4, false), InlineData(4, true)]
+    [InlineData(5, false), InlineData(5, true)]
+    public void TestSetBossStatus(int bossNumber, bool defeated)
+    {
+        using var fs = new FileStream("cb2.mcs", FileMode.Open);
+        var cb2 = new CrashBandicoot2SaveData(fs);
+
+        cb2.SetBossStatus(bossNumber, defeated);
+
+        Assert.Equal(defeated, cb2.GetBossStatus(bossNumber));
     }
 }

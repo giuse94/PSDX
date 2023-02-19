@@ -79,6 +79,8 @@ public class CrashBandicoot2SaveData : PsxSaveData
 
     private const int _maxLevelNumber = 27;
 
+    private const int _maxBossNumber = 5;
+
     private const int _checksumOffset = 0x1A4;
 
     private const int _akuAkuOffset = 0x1B4;
@@ -116,6 +118,14 @@ public class CrashBandicoot2SaveData : PsxSaveData
     };
 
     /// <summary>
+    /// Flags and relative offsets of each boss.
+    /// </summary>
+    private static readonly (byte Flag, byte Offset)[] _bossInfo = new (byte Flag, byte Offset)[_maxBossNumber]
+    {
+        (0x40, 0), (0x01, 1), (0x08, 0), (0x02, 1), (0x80, 0)
+    };
+
+    /// <summary>
     /// Checks whether the specified <paramref name="level"/> number exists, and throws an exception if not.
     /// </summary>
     /// <param name="level">The number of the level to check for.</param>
@@ -138,6 +148,19 @@ public class CrashBandicoot2SaveData : PsxSaveData
         if (level == 26 || level == 27)
         {
             throw new InvalidOperationException($"Level {level} does not contain a crystal.");
+        }
+    }
+
+    /// <summary>
+    /// Checks whether the specified boss number exists, and throws an exception if not.
+    /// </summary>
+    /// <param name="bossNumber">The number of the boss to check for.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The specified boss number is less than one or greater than five.</exception>
+    private static void CheckBossNumber(int bossNumber)
+    {
+        if (bossNumber < 1 || bossNumber > _maxBossNumber)
+        {
+            throw new ArgumentOutOfRangeException(nameof(bossNumber), bossNumber, "The specified boss does not exist.");
         }
     }
 
@@ -452,5 +475,34 @@ public class CrashBandicoot2SaveData : PsxSaveData
 
         int gemOffset = _gemsOffset + levelGemOffset;
         SetFlag(gemOffset, levelGemFlag, collected);
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether the specified boss has been defeated.
+    /// </summary>
+    /// <param name="bossNumber">The number of the boss to get the status of.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The specified boss number is less than one or greater than five.</exception>
+    public bool GetBossStatus(int bossNumber)
+    {
+        CheckBossNumber(bossNumber);
+
+        (byte bossFlag, byte bossRelativeOffset) = _bossInfo[bossNumber - 1];
+        int bossOffset = _progressOffset + bossRelativeOffset;
+        return GetFlag(bossOffset, bossFlag);
+    }
+
+    /// <summary>
+    /// Sets a value indicating whether the specified boss has been defeated.
+    /// </summary>
+    /// <param name="bossNumber">The number of the boss to set the status of.</param>
+    /// <param name="defeated">Determines whether the boss has been defeated.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The specified boss number is less than one or greater than five.</exception>
+    public void SetBossStatus(int bossNumber, bool defeated)
+    {
+        CheckBossNumber(bossNumber);
+
+        (byte bossFlag, byte bossRelativeOffset) = _bossInfo[bossNumber - 1];
+        int bossOffset = _progressOffset + bossRelativeOffset;
+        SetFlag(bossOffset, bossFlag, defeated);
     }
 }
