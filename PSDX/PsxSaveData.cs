@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.IO;
 
@@ -481,6 +481,7 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// Gets a value indicating whether the specified boss has been defeated.
     /// </summary>
     /// <param name="bossNumber">The number of the boss to get the status of.</param>
+    /// <returns><see langword="true"/> if the boss has been defeated, otherwise <see langword="false"/>.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The specified boss number is less than one or greater than five.</exception>
     public bool GetBossStatus(int bossNumber)
     {
