@@ -141,12 +141,15 @@ public class CrashBandicoot2SaveData : PsxSaveData
     }
 
     /// <summary>
-    /// Checks whether the specified <paramref name="level"/> number contains a crystal, and throws an exception if not.
+    /// Checks whether the specified <paramref name="level"/> contains a crystal, and throws an exception if not.
     /// </summary>
     /// <param name="level">The number of the level to check for.</param>
-    /// <exception cref="InvalidOperationException">The specified <paramref name="level"/> number does not contain a crystal.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The specified <paramref name="level"/> number is less than one or greater than twenty-seven.</exception>
+    /// <exception cref="InvalidOperationException">The specified <paramref name="level"/> does not contain a crystal.</exception>
     private static void CheckCrystalNumber(int level)
     {
+        CheckLevelNumber(level);
+
         if (level == 26 || level == 27)
         {
             throw new InvalidOperationException($"Level {level} does not contain a crystal.");
@@ -433,7 +436,6 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// <exception cref="InvalidOperationException">The specified <paramref name="level"/> does not contain a crystal.</exception>
     public bool GetCrystalStatus(int level)
     {
-        CheckLevelNumber(level);
         CheckCrystalNumber(level);
 
         (byte levelCrystalFlag, byte levelCrystalOffset) = _commonInfo[level - 1];
@@ -450,7 +452,6 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// <exception cref="InvalidOperationException">The specified <paramref name="level"/> does not contain a crystal.</exception>
     public void SetCrystalStatus(int level, bool collected)
     {
-        CheckLevelNumber(level);
         CheckCrystalNumber(level);
 
         (byte levelCrystalFlag, byte levelCrystalOffset) = _commonInfo[level - 1];
@@ -471,8 +472,6 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// <exception cref="InvalidEnumArgumentException">The specified <paramref name="gemType"/> is not a valid enum value.</exception>
     public bool GetGemStatus(int level, GemType gemType)
     {
-        CheckLevelNumber(level);
-
         (byte levelGemFlag, byte levelGemOffset) = GetLevelGemInfo(level, gemType);
 
         int gemOffset = _gemsOffset + levelGemOffset;
@@ -492,8 +491,6 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// <exception cref="InvalidEnumArgumentException">The specified <paramref name="gemType"/> is not a valid enum value.</exception>
     public void SetGemStatus(int level, GemType gemType, bool collected)
     {
-        CheckLevelNumber(level);
-
         (byte levelGemFlag, byte levelGemOffset) = GetLevelGemInfo(level, gemType);
 
         int gemOffset = _gemsOffset + levelGemOffset;
