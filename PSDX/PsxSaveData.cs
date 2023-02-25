@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.IO;
 
@@ -90,6 +90,8 @@ public class CrashBandicoot2SaveData : PsxSaveData
     private const int _crystalsOffset = 0x1C4;
 
     private const int _gemsOffset = 0x1CC;
+
+    private const int _secretsOffset = 0x1B8;
 
     /// <summary>
     /// Flags and relative offsets of progress, crystal and all-boxes-gem for each level.
@@ -196,6 +198,27 @@ public class CrashBandicoot2SaveData : PsxSaveData
         }
 
         throw new InvalidEnumArgumentException(nameof(gemType), (int)gemType, typeof(GemType));
+    }
+
+    /// <summary>
+    /// Gets the value of the flag which determines whether the secret exit has been found in the specified <paramref name="level"/>.
+    /// </summary>
+    /// <param name="level">The number of the level to get the flag of.</param>
+    /// <returns>The value of the flag.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The specified <paramref name="level"/> number is less than one or greater than twenty-seven.</exception>
+    /// <exception cref="InvalidOperationException">The specified <paramref name="level"/> does not contain a secret exit.</exception>
+    private static byte GetSecretExitFlag(int level)
+    {
+        CheckLevelNumber(level);
+        return level switch
+        {
+            7 => 0x10,
+            13 => 0x08,
+            15 => 0x02,
+            16 => 0x04,
+            17 => 0x01,
+            _ => throw new InvalidOperationException($"Level {level} does not contain a secret exit.")
+        };
     }
 
     /// <summary>
@@ -506,4 +529,22 @@ public class CrashBandicoot2SaveData : PsxSaveData
         int bossOffset = _progressOffset + bossRelativeOffset;
         SetFlag(bossOffset, bossFlag, defeated);
     }
+
+    /// <summary>
+    /// Gets a value indicating whether the secret exit has been found in the specified <paramref name="level"/>.
+    /// </summary>
+    /// <param name="level">The number of the level to check for.</param>
+    /// <returns><see langword="true"/> if the secret exit has been found, otherwise <see langword="false"/>.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The specified <paramref name="level"/> number is less than one or greater than twenty-seven.</exception>
+    /// <exception cref="InvalidOperationException">The specified <paramref name="level"/> does not contain a secret exit.</exception>
+    public bool GetSecretExitStatus(int level) => GetFlag(_secretsOffset, GetSecretExitFlag(level));
+
+    /// <summary>
+    /// Sets a value indicating whether the secret exit has been found in the specified <paramref name="level"/>.
+    /// </summary>
+    /// <param name="level">The number of the level to set the secret exit status of.</param>
+    /// <param name="found">Determines whether the secret exit has been found.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The specified <paramref name="level"/> number is less than one or greater than twenty-seven.</exception>
+    /// <exception cref="InvalidOperationException">The specified <paramref name="level"/> does not contain a secret exit.</exception>
+    public void SetSecretExitStatus(int level, bool found) => SetFlag(_secretsOffset, GetSecretExitFlag(level), found);
 }

@@ -177,6 +177,8 @@ public class PsdxTests
         void SetCrystalStatus() => cb2.SetCrystalStatus(level, true);
         void GetGemStatus() => cb2.GetGemStatus(level, CrashBandicoot2SaveData.GemType.AllBoxesGem);
         void SetGemStatus() => cb2.SetGemStatus(level, CrashBandicoot2SaveData.GemType.AllBoxesGem, true);
+        void GetSecretExitStatus() => cb2.GetSecretExitStatus(level);
+        void SetSecretExitStatus() => cb2.SetSecretExitStatus(level, true);
 
         _ = Assert.Throws<ArgumentOutOfRangeException>(GetProgressStatus);
         _ = Assert.Throws<ArgumentOutOfRangeException>(SetProgressStatus);
@@ -184,6 +186,8 @@ public class PsdxTests
         _ = Assert.Throws<ArgumentOutOfRangeException>(SetCrystalStatus);
         _ = Assert.Throws<ArgumentOutOfRangeException>(GetGemStatus);
         _ = Assert.Throws<ArgumentOutOfRangeException>(SetGemStatus);
+        _ = Assert.Throws<ArgumentOutOfRangeException>(GetSecretExitStatus);
+        _ = Assert.Throws<ArgumentOutOfRangeException>(SetSecretExitStatus);
     }
 
     [Theory]
@@ -419,5 +423,49 @@ public class PsdxTests
         cb2.SetBossStatus(bossNumber, defeated);
 
         Assert.Equal(defeated, cb2.GetBossStatus(bossNumber));
+    }
+
+    [Theory]
+    [InlineData(1), InlineData(2), InlineData(3), InlineData(4), InlineData(5), InlineData(6)]
+    [InlineData(8), InlineData(9), InlineData(10), InlineData(11), InlineData(12), InlineData(14)]
+    [InlineData(18), InlineData(19), InlineData(20), InlineData(21), InlineData(22), InlineData(23)]
+    [InlineData(24), InlineData(25), InlineData(26), InlineData(27)]
+    public void SecretExitRelatedMethodsThrowIoeWithWrongNumber(int level)
+    {
+        using var fs = new FileStream("cb2.mcs", FileMode.Open);
+        var cb2 = new CrashBandicoot2SaveData(fs);
+
+        void GetSecretExitStatus() => cb2.GetSecretExitStatus(level);
+        void SetSecretExitStatus() => cb2.SetSecretExitStatus(level, true);
+
+        _ = Assert.Throws<InvalidOperationException>(GetSecretExitStatus);
+        _ = Assert.Throws<InvalidOperationException>(SetSecretExitStatus);
+    }
+
+    [Fact]
+    public void GetSecretExitStatusReturnsFalseForAllLevels()
+    {
+        using var fs = new FileStream("cb2.mcs", FileMode.Open);
+        var cb2 = new CrashBandicoot2SaveData(fs);
+
+        int[] levelsWithSecretExit = { 7, 13, 15, 16, 17 };
+        for (int i = 0; i < levelsWithSecretExit.Length; i++)
+        {
+            bool found = cb2.GetSecretExitStatus(levelsWithSecretExit[i]);
+            Assert.False(found);
+        }
+    }
+
+    [Theory]
+    [InlineData(7, true), InlineData(13, true), InlineData(15, true), InlineData(16, true), InlineData(17, true)]
+    [InlineData(7, false), InlineData(13, false), InlineData(15, false), InlineData(16, false), InlineData(17, false)]
+    public void TestSetSecretExitStatus(int level, bool found)
+    {
+        using var fs = new FileStream("cb2.mcs", FileMode.Open);
+        var cb2 = new CrashBandicoot2SaveData(fs);
+
+        cb2.SetSecretExitStatus(level, found);
+
+        Assert.Equal(found, cb2.GetSecretExitStatus(level));
     }
 }
