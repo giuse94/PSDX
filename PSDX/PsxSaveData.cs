@@ -93,6 +93,8 @@ public class CrashBandicoot2SaveData : PsxSaveData
 
     private const int _secretsOffset = 0x1B8;
 
+    private const byte _polarTrickFlag = 0x20;
+
     /// <summary>
     /// Flags and relative offsets of progress, crystal and all-boxes-gem for each level.
     /// </summary>
@@ -544,4 +546,18 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// <exception cref="ArgumentOutOfRangeException">The specified <paramref name="level"/> number is less than one or greater than twenty-seven.</exception>
     /// <exception cref="InvalidOperationException">The specified <paramref name="level"/> does not contain a secret exit.</exception>
     public void SetSecretExitStatus(int level, bool found) => SetFlag(_secretsOffset, GetSecretExitFlag(level), found);
+
+    /// <summary>
+    /// Gets a value indicating whether the Polar trick has been performed.<br/>
+    /// The "Polar trick" is the one that allows Crash to gain ten lives.
+    /// </summary>
+    /// <returns><see langword="true"/> if the trick has been performed, otherwise <see langword="false"/>.</returns>
+    public bool GetPolarTrickStatus() => GetFlag(_secretsOffset, _polarTrickFlag);
+
+    /// <summary>
+    /// Sets a value indicating whether the Polar trick has been performed.<br/>
+    /// The "Polar trick" is the one that allows Crash to gain ten lives.
+    /// </summary>
+    /// <param name="performed">Determines whether the trick has been performed.</param>
+    public void SetPolarTrickStatus(bool performed) => SetFlag(_secretsOffset, _polarTrickFlag, performed);
 }

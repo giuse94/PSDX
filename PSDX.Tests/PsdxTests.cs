@@ -468,4 +468,27 @@ public class PsdxTests
 
         Assert.Equal(found, cb2.GetSecretExitStatus(level));
     }
+
+    [Fact]
+    public void GetPolarTrickStatusReturnsFalse()
+    {
+        using var fs = new FileStream("cb2.mcs", FileMode.Open);
+        var cb2 = new CrashBandicoot2SaveData(fs);
+
+        bool performed = cb2.GetPolarTrickStatus();
+
+        Assert.False(performed);
+    }
+
+    [Theory]
+    [InlineData(true), InlineData(false)]
+    public void TestSetPolarTrickStatus(bool performed)
+    {
+        using var fs = new FileStream("cb2.mcs", FileMode.Open);
+        var cb2 = new CrashBandicoot2SaveData(fs);
+
+        cb2.SetPolarTrickStatus(performed);
+
+        Assert.Equal(performed, cb2.GetPolarTrickStatus());
+    }
 }
