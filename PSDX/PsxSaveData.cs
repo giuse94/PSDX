@@ -93,6 +93,8 @@ public class CrashBandicoot2SaveData : PsxSaveData
 
     private const int _secretsOffset = 0x1B8;
 
+    private const int _lastPlayedLevelOffset = 0x188;
+
     private const byte _polarTrickFlag = 0x20;
 
     /// <summary>
@@ -133,10 +135,17 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// Checks whether the specified <paramref name="level"/> number exists, and throws an exception if not.
     /// </summary>
     /// <param name="level">The number of the level to check for.</param>
-    /// <exception cref="ArgumentOutOfRangeException">The specified <paramref name="level"/> number is less than one or greater than twenty-seven.</exception>
-    private static void CheckLevelNumber(int level)
+    /// <param name="includeBossLevels">
+    /// Determines whether to extend the range of allowed values for <paramref name="level"/> by including the boss levels.
+    /// </param>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// The specified <paramref name="level"/> number is less than one or greater than either twenty-seven
+    /// or thirty-two, depending on the value of <paramref name="includeBossLevels"/>.
+    /// </exception>
+    private static void CheckLevelNumber(int level, bool includeBossLevels = false)
     {
-        if (level < 1 || level > _maxLevelNumber)
+        int maxLevelNumber = includeBossLevels ? _maxLevelNumber + _maxBossNumber : _maxLevelNumber;
+        if (level < 1 || level > maxLevelNumber)
         {
             throw new ArgumentOutOfRangeException(nameof(level), level, "The specified level does not exist.");
         }
@@ -560,4 +569,38 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// </summary>
     /// <param name="performed">Determines whether the trick has been performed.</param>
     public void SetPolarTrickStatus(bool performed) => SetFlag(_secretsOffset, _polarTrickFlag, performed);
+
+    /// <summary>
+    /// Gets the last played level number currently stored in the save data file.
+    /// </summary>
+    /// <returns>
+    /// A number in the range [1, 32], where the values in the range [28, 32] represent
+    /// the five boss levels. This is how the game maps them internally.
+    /// </returns>
+    public int GetLastPlayedLevel()
+    {
+        byte[] bytes = new byte[sizeof(int)];
+        Stream.Position = _lastPlayedLevelOffset;
+        Stream.ReadExactly(bytes);
+        return BitConverter.ToInt32(bytes);
+    }
+
+    /// <summary>
+    /// Sets the last played level number to store in the save data file.
+    /// </summary>
+    /// <param name="level">
+    /// The number of the level to be set as the last played.<br/>Values in the range [28, 32] are
+    /// allowed and represent the five boss levels. This is how the game maps them internally.
+    /// </param>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// The specified <paramref name="level"/> number is less than one or greater than thirty-two.
+    /// </exception>
+    public void SetLastPlayedLevel(int level)
+    {
+        CheckLevelNumber(level, true);
+
+        Stream.Position = _lastPlayedLevelOffset;
+        byte[] bytes = BitConverter.GetBytes(level);
+        Stream.Write(bytes);
+    }
 }

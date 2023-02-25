@@ -491,4 +491,40 @@ public class PsdxTests
 
         Assert.Equal(performed, cb2.GetPolarTrickStatus());
     }
+
+    [Fact]
+    public void GetLastPlayedLevelReturns1()
+    {
+        using var fs = new FileStream("cb2.mcs", FileMode.Open);
+        var cb2 = new CrashBandicoot2SaveData(fs);
+
+        int level = cb2.GetLastPlayedLevel();
+
+        Assert.Equal(1, level);
+    }
+
+    [Theory]
+    [InlineData(-1), InlineData(0), InlineData(33)]
+    public void SetLastPlayedLevelThrowsAoReWithWrongNumber(int level)
+    {
+        using var fs = new FileStream("cb2.mcs", FileMode.Open);
+        var cb2 = new CrashBandicoot2SaveData(fs);
+
+        void SetLastPlayedLevel() => cb2.SetLastPlayedLevel(level);
+
+        _ = Assert.Throws<ArgumentOutOfRangeException>(SetLastPlayedLevel);
+    }
+
+    [Fact]
+    public void TestSetLastPlayedLevel()
+    {
+        using var fs = new FileStream("cb2.mcs", FileMode.Open);
+        var cb2 = new CrashBandicoot2SaveData(fs);
+
+        for (int level = 1; level < 33; level++)
+        {
+            cb2.SetLastPlayedLevel(level);
+            Assert.Equal(level, cb2.GetLastPlayedLevel());
+        }
+    }
 }
