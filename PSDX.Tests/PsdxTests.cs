@@ -8,6 +8,12 @@ namespace PSDX.Tests;
 
 public class PsdxTests
 {
+    private static CrashBandicoot2SaveData GetCb2Instance()
+    {
+        using var fs = new FileStream("cb2.mcs", FileMode.Open);
+        return new CrashBandicoot2SaveData(fs);
+    }
+
     [Fact]
     public void PsxSaveDataCtorThrowsAneWithNullStream()
     {
@@ -55,8 +61,7 @@ public class PsdxTests
     [Fact]
     public void GetAkuAkuMasksReturns2()
     {
-        using var fs = new FileStream("cb2.mcs", FileMode.Open);
-        var cb2 = new CrashBandicoot2SaveData(fs);
+        var cb2 = GetCb2Instance();
 
         int masks = cb2.GetAkuAkuMasks();
 
@@ -67,8 +72,7 @@ public class PsdxTests
     [InlineData(-1), InlineData(0), InlineData(1), InlineData(2), InlineData(3), InlineData(4)]
     public void TestSetAkuAkuMasks(int masksToSet)
     {
-        using var fs = new FileStream("cb2.mcs", FileMode.Open);
-        var cb2 = new CrashBandicoot2SaveData(fs);
+        var cb2 = GetCb2Instance();
 
         cb2.SetAkuAkuMasks(masksToSet);
 
@@ -78,8 +82,7 @@ public class PsdxTests
     [Fact]
     public void TestGetChecksum()
     {
-        using var fs = new FileStream("cb2.mcs", FileMode.Open);
-        var cb2 = new CrashBandicoot2SaveData(fs);
+        var cb2 = GetCb2Instance();
 
         uint checksum = cb2.GetChecksum();
 
@@ -90,8 +93,7 @@ public class PsdxTests
     [InlineData(0), InlineData(7), InlineData(0xA14DC582), InlineData(uint.MaxValue)]
     public void TestSetChecksum(uint checksumToSet)
     {
-        using var fs = new FileStream("cb2.mcs", FileMode.Open);
-        var cb2 = new CrashBandicoot2SaveData(fs);
+        var cb2 = GetCb2Instance();
 
         cb2.SetChecksum(checksumToSet);
 
@@ -101,8 +103,7 @@ public class PsdxTests
     [Fact]
     public void TestComputeChecksum()
     {
-        using var fs = new FileStream("cb2.mcs", FileMode.Open);
-        var cb2 = new CrashBandicoot2SaveData(fs);
+        var cb2 = GetCb2Instance();
 
         uint checksum = cb2.ComputeChecksum();
 
@@ -134,8 +135,7 @@ public class PsdxTests
     [Fact]
     public void CallersCantInterfereWithStream()
     {
-        using var fs = new FileStream("cb2.mcs", FileMode.Open);
-        var cb2 = new CrashBandicoot2SaveData(fs);
+        var cb2 = GetCb2Instance();
         var stream = cb2.GetStream();
 
         stream.Position = 0;
@@ -168,8 +168,7 @@ public class PsdxTests
     [InlineData(-1), InlineData(0), InlineData(28)]
     public void LevelRelatedMethodsThrowAoReWithWrongNumber(int level)
     {
-        using var fs = new FileStream("cb2.mcs", FileMode.Open);
-        var cb2 = new CrashBandicoot2SaveData(fs);
+        var cb2 = GetCb2Instance();
 
         void GetProgressStatus() => cb2.GetProgressStatus(level);
         void SetProgressStatus() => cb2.SetProgressStatus(level, true);
@@ -194,8 +193,7 @@ public class PsdxTests
     [InlineData(26), InlineData(27)]
     public void CrystalRelatedMethodsThrowIoeWithWrongNumber(int level)
     {
-        using var fs = new FileStream("cb2.mcs", FileMode.Open);
-        var cb2 = new CrashBandicoot2SaveData(fs);
+        var cb2 = GetCb2Instance();
 
         void GetCrystalStatus() => cb2.GetCrystalStatus(level);
         void SetCrystalStatus() => cb2.SetCrystalStatus(level, true);
@@ -209,8 +207,7 @@ public class PsdxTests
     [InlineData(15), InlineData(16), InlineData(22), InlineData(24), InlineData(26), InlineData(27)]
     public void GemRelatedMethodsThrowIoeWithWrongNumber(int level)
     {
-        using var fs = new FileStream("cb2.mcs", FileMode.Open);
-        var cb2 = new CrashBandicoot2SaveData(fs);
+        var cb2 = GetCb2Instance();
 
         void GetGemStatus() => cb2.GetGemStatus(level, CrashBandicoot2SaveData.GemType.SecondGem);
         void SetGemStatus() => cb2.SetGemStatus(level, CrashBandicoot2SaveData.GemType.SecondGem, true);
@@ -223,8 +220,7 @@ public class PsdxTests
     [InlineData(0), InlineData(3)]
     public void GemRelatedMethodsThrowIeAe(int enumIntValue)
     {
-        using var fs = new FileStream("cb2.mcs", FileMode.Open);
-        var cb2 = new CrashBandicoot2SaveData(fs);
+        var cb2 = GetCb2Instance();
         var enumValue = (CrashBandicoot2SaveData.GemType)enumIntValue;
 
         void GetGemStatus() => cb2.GetGemStatus(1, enumValue);
@@ -237,8 +233,7 @@ public class PsdxTests
     [Fact]
     public void GetProgressStatusReturnsTrueForLevel1()
     {
-        using var fs = new FileStream("cb2.mcs", FileMode.Open);
-        var cb2 = new CrashBandicoot2SaveData(fs);
+        var cb2 = GetCb2Instance();
 
         bool traversed = cb2.GetProgressStatus(1);
 
@@ -248,8 +243,7 @@ public class PsdxTests
     [Fact]
     public void GetProgressStatusReturnsFalseForOtherLevels()
     {
-        using var fs = new FileStream("cb2.mcs", FileMode.Open);
-        var cb2 = new CrashBandicoot2SaveData(fs);
+        var cb2 = GetCb2Instance();
 
         for (int level = 2; level < 28; level++)
         {
@@ -263,8 +257,7 @@ public class PsdxTests
     [InlineData(14, false), InlineData(14, true), InlineData(22, false), InlineData(22, true)]
     public void TestSetProgressStatus(int level, bool traversed)
     {
-        using var fs = new FileStream("cb2.mcs", FileMode.Open);
-        var cb2 = new CrashBandicoot2SaveData(fs);
+        var cb2 = GetCb2Instance();
 
         cb2.SetProgressStatus(level, traversed);
 
@@ -274,8 +267,7 @@ public class PsdxTests
     [Fact]
     public void GetCrystalStatusReturnsTrueForLevel1()
     {
-        using var fs = new FileStream("cb2.mcs", FileMode.Open);
-        var cb2 = new CrashBandicoot2SaveData(fs);
+        var cb2 = GetCb2Instance();
 
         bool collected = cb2.GetCrystalStatus(1);
 
@@ -285,8 +277,7 @@ public class PsdxTests
     [Fact]
     public void GetCrystalStatusReturnsFalseForOtherLevels()
     {
-        using var fs = new FileStream("cb2.mcs", FileMode.Open);
-        var cb2 = new CrashBandicoot2SaveData(fs);
+        var cb2 = GetCb2Instance();
 
         for (int level = 2; level < 26; level++)
         {
@@ -300,8 +291,7 @@ public class PsdxTests
     [InlineData(9, false), InlineData(9, true), InlineData(18, false), InlineData(18, true)]
     public void TestSetCrystalStatus(int level, bool collected)
     {
-        using var fs = new FileStream("cb2.mcs", FileMode.Open);
-        var cb2 = new CrashBandicoot2SaveData(fs);
+        var cb2 = GetCb2Instance();
 
         cb2.SetCrystalStatus(level, collected);
 
@@ -311,8 +301,7 @@ public class PsdxTests
     [Fact]
     public void GetAbGemStatusReturnsFalseForAllLevels()
     {
-        using var fs = new FileStream("cb2.mcs", FileMode.Open);
-        var cb2 = new CrashBandicoot2SaveData(fs);
+        var cb2 = GetCb2Instance();
 
         for (int level = 1; level < 28; level++)
         {
@@ -324,8 +313,7 @@ public class PsdxTests
     [Fact]
     public void Get2ndGemStatusReturnsFalseForAllLevels()
     {
-        using var fs = new FileStream("cb2.mcs", FileMode.Open);
-        var cb2 = new CrashBandicoot2SaveData(fs);
+        var cb2 = GetCb2Instance();
 
         int[] levelsWithSecondGem = { 1, 2, 3, 7, 10, 11, 12, 14, 17, 18, 19, 20, 21, 23, 25 };
         for (int i = 0; i < levelsWithSecondGem.Length; i++)
@@ -344,8 +332,7 @@ public class PsdxTests
     [InlineData(19, CrashBandicoot2SaveData.GemType.SecondGem, false), InlineData(19, CrashBandicoot2SaveData.GemType.SecondGem, true)]
     public void TestSetGemStatus(int level, CrashBandicoot2SaveData.GemType gemType, bool collected)
     {
-        using var fs = new FileStream("cb2.mcs", FileMode.Open);
-        var cb2 = new CrashBandicoot2SaveData(fs);
+        var cb2 = GetCb2Instance();
 
         cb2.SetGemStatus(level, gemType, collected);
 
@@ -355,8 +342,7 @@ public class PsdxTests
     [Fact]
     public void FlagOnRemainsOn()
     {
-        using var fs = new FileStream("cb2.mcs", FileMode.Open);
-        var cb2 = new CrashBandicoot2SaveData(fs);
+        var cb2 = GetCb2Instance();
 
         cb2.SetProgressStatus(1, true);
         cb2.SetCrystalStatus(1, true);
@@ -368,8 +354,7 @@ public class PsdxTests
     [Fact]
     public void FlagOffRemainsOff()
     {
-        using var fs = new FileStream("cb2.mcs", FileMode.Open);
-        var cb2 = new CrashBandicoot2SaveData(fs);
+        var cb2 = GetCb2Instance();
 
         cb2.SetProgressStatus(2, false);
         cb2.SetCrystalStatus(2, false);
@@ -388,8 +373,7 @@ public class PsdxTests
     [InlineData(-1), InlineData(0), InlineData(6)]
     public void BossRelatedMethodsThrowAoReWithWrongNumber(int bossNumber)
     {
-        using var fs = new FileStream("cb2.mcs", FileMode.Open);
-        var cb2 = new CrashBandicoot2SaveData(fs);
+        var cb2 = GetCb2Instance();
 
         void GetBossStatus() => cb2.GetBossStatus(bossNumber);
         void SetBossStatus() => cb2.SetBossStatus(bossNumber, true);
@@ -401,8 +385,7 @@ public class PsdxTests
     [Fact]
     public void GetBossStatusReturnsFalseForAllBosses()
     {
-        using var fs = new FileStream("cb2.mcs", FileMode.Open);
-        var cb2 = new CrashBandicoot2SaveData(fs);
+        var cb2 = GetCb2Instance();
 
         for (int bossNumber = 1; bossNumber < 6; bossNumber++)
         {
@@ -417,8 +400,7 @@ public class PsdxTests
     [InlineData(5, false), InlineData(5, true)]
     public void TestSetBossStatus(int bossNumber, bool defeated)
     {
-        using var fs = new FileStream("cb2.mcs", FileMode.Open);
-        var cb2 = new CrashBandicoot2SaveData(fs);
+        var cb2 = GetCb2Instance();
 
         cb2.SetBossStatus(bossNumber, defeated);
 
@@ -432,8 +414,7 @@ public class PsdxTests
     [InlineData(24), InlineData(25), InlineData(26), InlineData(27)]
     public void SecretExitRelatedMethodsThrowIoeWithWrongNumber(int level)
     {
-        using var fs = new FileStream("cb2.mcs", FileMode.Open);
-        var cb2 = new CrashBandicoot2SaveData(fs);
+        var cb2 = GetCb2Instance();
 
         void GetSecretExitStatus() => cb2.GetSecretExitStatus(level);
         void SetSecretExitStatus() => cb2.SetSecretExitStatus(level, true);
@@ -445,8 +426,7 @@ public class PsdxTests
     [Fact]
     public void GetSecretExitStatusReturnsFalseForAllLevels()
     {
-        using var fs = new FileStream("cb2.mcs", FileMode.Open);
-        var cb2 = new CrashBandicoot2SaveData(fs);
+        var cb2 = GetCb2Instance();
 
         int[] levelsWithSecretExit = { 7, 13, 15, 16, 17 };
         for (int i = 0; i < levelsWithSecretExit.Length; i++)
@@ -461,8 +441,7 @@ public class PsdxTests
     [InlineData(7, false), InlineData(13, false), InlineData(15, false), InlineData(16, false), InlineData(17, false)]
     public void TestSetSecretExitStatus(int level, bool found)
     {
-        using var fs = new FileStream("cb2.mcs", FileMode.Open);
-        var cb2 = new CrashBandicoot2SaveData(fs);
+        var cb2 = GetCb2Instance();
 
         cb2.SetSecretExitStatus(level, found);
 
@@ -472,8 +451,7 @@ public class PsdxTests
     [Fact]
     public void GetPolarTrickStatusReturnsFalse()
     {
-        using var fs = new FileStream("cb2.mcs", FileMode.Open);
-        var cb2 = new CrashBandicoot2SaveData(fs);
+        var cb2 = GetCb2Instance();
 
         bool performed = cb2.GetPolarTrickStatus();
 
@@ -484,8 +462,7 @@ public class PsdxTests
     [InlineData(true), InlineData(false)]
     public void TestSetPolarTrickStatus(bool performed)
     {
-        using var fs = new FileStream("cb2.mcs", FileMode.Open);
-        var cb2 = new CrashBandicoot2SaveData(fs);
+        var cb2 = GetCb2Instance();
 
         cb2.SetPolarTrickStatus(performed);
 
@@ -495,8 +472,7 @@ public class PsdxTests
     [Fact]
     public void GetLastPlayedLevelReturns1()
     {
-        using var fs = new FileStream("cb2.mcs", FileMode.Open);
-        var cb2 = new CrashBandicoot2SaveData(fs);
+        var cb2 = GetCb2Instance();
 
         int level = cb2.GetLastPlayedLevel();
 
@@ -507,8 +483,7 @@ public class PsdxTests
     [InlineData(-1), InlineData(0), InlineData(33)]
     public void SetLastPlayedLevelThrowsAoReWithWrongNumber(int level)
     {
-        using var fs = new FileStream("cb2.mcs", FileMode.Open);
-        var cb2 = new CrashBandicoot2SaveData(fs);
+        var cb2 = GetCb2Instance();
 
         void SetLastPlayedLevel() => cb2.SetLastPlayedLevel(level);
 
@@ -518,8 +493,7 @@ public class PsdxTests
     [Fact]
     public void TestSetLastPlayedLevel()
     {
-        using var fs = new FileStream("cb2.mcs", FileMode.Open);
-        var cb2 = new CrashBandicoot2SaveData(fs);
+        var cb2 = GetCb2Instance();
 
         for (int level = 1; level < 33; level++)
         {
