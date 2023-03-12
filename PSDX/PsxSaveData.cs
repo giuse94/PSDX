@@ -97,6 +97,8 @@ public class CrashBandicoot2SaveData : PsxSaveData
 
     private const int _usernameOffset = 0x18C;
 
+    private const int _languageOffset = 0x3FD;
+
     private const byte _polarTrickFlag = 0x20;
 
     /// <summary>
@@ -290,6 +292,22 @@ public class CrashBandicoot2SaveData : PsxSaveData
         /// Not all levels in the game have this type of gem.
         /// </summary>
         SecondGem = 2
+    }
+
+    /// <summary>
+    /// Represents the selectable languages in the game.
+    /// </summary>
+    public enum Language : byte
+    {
+        English = 0,
+
+        Spanish = 1,
+
+        French = 2,
+
+        German = 3,
+
+        Italian = 4
     }
 
     /// <summary>
@@ -641,5 +659,24 @@ public class CrashBandicoot2SaveData : PsxSaveData
         byte[] nameBytes = System.Text.Encoding.ASCII.GetBytes(nameToSave);
         Stream.Position = _usernameOffset;
         Stream.Write(nameBytes);
+    }
+
+    /// <summary>
+    /// Gets the language currently stored in the save data file.
+    /// </summary>
+    public Language GetLanguage()
+    {
+        Stream.Position = _languageOffset;
+        return (Language)Stream.ReadByte();
+    }
+
+    /// <summary>
+    /// Sets the language to store in the save data file.
+    /// </summary>
+    /// <param name="language">The language to store.</param>
+    public void SetLanguage(Language language)
+    {
+        Stream.Position = _languageOffset;
+        Stream.WriteByte((byte)language);
     }
 }

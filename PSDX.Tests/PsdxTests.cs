@@ -543,4 +543,27 @@ public class PsdxTests
 
         Assert.Equal(name, cb2.GetUsername());
     }
+
+    [Fact]
+    public void GetLanguageReturnsIt()
+    {
+        var cb2 = GetCb2Instance();
+
+        var language = cb2.GetLanguage();
+
+        Assert.Equal(CrashBandicoot2SaveData.Language.Italian, language);
+    }
+
+    [Theory]
+    [InlineData(CrashBandicoot2SaveData.Language.English), InlineData(CrashBandicoot2SaveData.Language.Spanish)]
+    [InlineData(CrashBandicoot2SaveData.Language.French), InlineData(CrashBandicoot2SaveData.Language.German)]
+    [InlineData(CrashBandicoot2SaveData.Language.Italian), InlineData((CrashBandicoot2SaveData.Language)5)]
+    public void TestSetLanguage(CrashBandicoot2SaveData.Language language)
+    {
+        var cb2 = GetCb2Instance();
+
+        cb2.SetLanguage(language);
+
+        Assert.Equal(language, cb2.GetLanguage());
+    }
 }
