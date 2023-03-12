@@ -99,6 +99,8 @@ public class CrashBandicoot2SaveData : PsxSaveData
 
     private const int _languageOffset = 0x3FD;
 
+    private const int _audioTypeOffset = 0x1D4;
+
     private const byte _polarTrickFlag = 0x20;
 
     /// <summary>
@@ -308,6 +310,16 @@ public class CrashBandicoot2SaveData : PsxSaveData
         German = 3,
 
         Italian = 4
+    }
+
+    /// <summary>
+    /// Represents the type of audio selectable in the game.
+    /// </summary>
+    public enum AudioType : byte
+    {
+        Stereo = 0,
+
+        Mono = 1
     }
 
     /// <summary>
@@ -678,5 +690,24 @@ public class CrashBandicoot2SaveData : PsxSaveData
     {
         Stream.Position = _languageOffset;
         Stream.WriteByte((byte)language);
+    }
+
+    /// <summary>
+    /// Gets the audio type currently stored in the save data file.
+    /// </summary>
+    public AudioType GetAudioType()
+    {
+        Stream.Position = _audioTypeOffset;
+        return (AudioType)Stream.ReadByte();
+    }
+
+    /// <summary>
+    /// Sets the audio type to store in the save data file.
+    /// </summary>
+    /// <param name="audioType">The type of audio to store.</param>
+    public void SetAudioType(AudioType audioType)
+    {
+        Stream.Position = _audioTypeOffset;
+        Stream.WriteByte((byte)audioType);
     }
 }

@@ -566,4 +566,26 @@ public class PsdxTests
 
         Assert.Equal(language, cb2.GetLanguage());
     }
+
+    [Fact]
+    public void GetAudioTypeReturnsStereo()
+    {
+        var cb2 = GetCb2Instance();
+
+        var audioType = cb2.GetAudioType();
+
+        Assert.Equal(CrashBandicoot2SaveData.AudioType.Stereo, audioType);
+    }
+
+    [Theory]
+    [InlineData(CrashBandicoot2SaveData.AudioType.Stereo), InlineData(CrashBandicoot2SaveData.AudioType.Mono)]
+    [InlineData((CrashBandicoot2SaveData.AudioType)2)]
+    public void TestSetAudioType(CrashBandicoot2SaveData.AudioType audioType)
+    {
+        var cb2 = GetCb2Instance();
+
+        cb2.SetAudioType(audioType);
+
+        Assert.Equal(audioType, cb2.GetAudioType());
+    }
 }
