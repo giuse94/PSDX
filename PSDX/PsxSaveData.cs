@@ -95,6 +95,8 @@ public class CrashBandicoot2SaveData : PsxSaveData
 
     private const int _lastPlayedLevelOffset = 0x188;
 
+    private const int _usernameOffset = 0x18C;
+
     private const byte _polarTrickFlag = 0x20;
 
     /// <summary>
@@ -602,5 +604,42 @@ public class CrashBandicoot2SaveData : PsxSaveData
         Stream.Position = _lastPlayedLevelOffset;
         byte[] bytes = BitConverter.GetBytes(level);
         Stream.Write(bytes);
+    }
+
+    /// <summary>
+    /// Gets the username currently stored in the save data file.
+    /// </summary>
+    public string GetUsername()
+    {
+        byte[] bytes = new byte[8];
+        Stream.Position = _usernameOffset;
+        Stream.ReadExactly(bytes);
+        string name = System.Text.Encoding.ASCII.GetString(bytes);
+        name = name.Replace('[', ' '); // The space is stored as 0x5B ('[').
+        int nullIndex = name.IndexOf('\0');
+        return nullIndex > -1 ? name[0..nullIndex] : name;
+    }
+
+    /// <summary>
+    /// Sets the username to store in the save data file.
+    /// </summary>
+    /// <param name="name">The username to store.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="name"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentException"><paramref name="name"/> contains more than eight characters.</exception>
+    public void SetUsername(string name)
+    {
+        if (name == null)
+        {
+            throw new ArgumentNullException(nameof(name));
+        }
+        if (name.Length > 8)
+        {
+            throw new ArgumentException("The username can be at most eight characters long.", nameof(name));
+        }
+
+        string nameToSave = name.Replace(' ', '[') + '\0'; // The space is stored as 0x5B ('[').
+        byte[] nameBytes = System.Text.Encoding.ASCII.GetBytes(nameToSave);
+        Stream.Position = _usernameOffset;
+        Stream.Write(nameBytes);
     }
 }

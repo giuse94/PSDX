@@ -501,4 +501,46 @@ public class PsdxTests
             Assert.Equal(level, cb2.GetLastPlayedLevel());
         }
     }
+
+    [Fact]
+    public void GetUsernameReturnsCrashB()
+    {
+        var cb2 = GetCb2Instance();
+
+        string username = cb2.GetUsername();
+
+        Assert.Equal("CRASH B", username);
+    }
+
+    [Fact]
+    public void SetUsernameThrowsAne()
+    {
+        var cb2 = GetCb2Instance();
+
+        void CodeToTest() => cb2.SetUsername(null!); // Intentionally suppress the (right) warning.
+
+        _ = Assert.Throws<ArgumentNullException>(CodeToTest);
+    }
+
+    [Fact]
+    public void SetUsernameThrowsAe()
+    {
+        var cb2 = GetCb2Instance();
+
+        void CodeToTest() => cb2.SetUsername("123456789");
+
+        _ = Assert.Throws<ArgumentException>(CodeToTest);
+    }
+
+    [Theory]
+    [InlineData("ABCDEFGH"), InlineData("IJKLMNOP"), InlineData("QRSTUVWX"), InlineData("YZ")]
+    [InlineData("A BC DE"), InlineData("")]
+    public void TestSetUsername(string name)
+    {
+        var cb2 = GetCb2Instance();
+
+        cb2.SetUsername(name);
+
+        Assert.Equal(name, cb2.GetUsername());
+    }
 }
