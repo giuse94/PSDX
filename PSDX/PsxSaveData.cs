@@ -81,9 +81,15 @@ public class CrashBandicoot2SaveData : PsxSaveData
 
     private const int _maxBossNumber = 5;
 
+    private const int _lastPlayedLevelOffset = 0x188;
+
+    private const int _usernameOffset = 0x18C;
+
     private const int _checksumOffset = 0x1A4;
 
     private const int _akuAkuOffset = 0x1B4;
+
+    private const int _secretsOffset = 0x1B8;
 
     private const int _progressOffset = 0x1BC;
 
@@ -91,15 +97,9 @@ public class CrashBandicoot2SaveData : PsxSaveData
 
     private const int _gemsOffset = 0x1CC;
 
-    private const int _secretsOffset = 0x1B8;
-
-    private const int _lastPlayedLevelOffset = 0x188;
-
-    private const int _usernameOffset = 0x18C;
+    private const int _audioTypeOffset = 0x1D4;
 
     private const int _languageOffset = 0x3FD;
-
-    private const int _audioTypeOffset = 0x1D4;
 
     private const byte _polarTrickFlag = 0x20;
 
