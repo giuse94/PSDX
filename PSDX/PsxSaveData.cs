@@ -87,6 +87,8 @@ public class CrashBandicoot2SaveData : PsxSaveData
 
     private const int _checksumOffset = 0x1A4;
 
+    private const int _livesOffset = 0x1AC;
+
     private const int _akuAkuOffset = 0x1B4;
 
     private const int _secretsOffset = 0x1B8;
@@ -709,5 +711,27 @@ public class CrashBandicoot2SaveData : PsxSaveData
     {
         Stream.Position = _audioTypeOffset;
         Stream.WriteByte((byte)audioType);
+    }
+
+    /// <summary>
+    /// Gets the number of lives currently stored in the save data file.
+    /// </summary>
+    public int GetLives()
+    {
+        byte[] bytes = new byte[sizeof(int)];
+        Stream.Position = _livesOffset;
+        Stream.ReadExactly(bytes);
+        return BitConverter.ToInt32(bytes);
+    }
+
+    /// <summary>
+    /// Sets the number of lives to store in the save data file.
+    /// </summary>
+    /// <param name="number">The number of lives to store.</param>
+    public void SetLives(int number)
+    {
+        Stream.Position = _livesOffset;
+        byte[] bytes = BitConverter.GetBytes(number);
+        Stream.Write(bytes);
     }
 }

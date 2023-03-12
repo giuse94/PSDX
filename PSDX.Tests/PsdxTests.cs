@@ -588,4 +588,25 @@ public class PsdxTests
 
         Assert.Equal(audioType, cb2.GetAudioType());
     }
+
+    [Fact]
+    public void GetLivesReturns4()
+    {
+        var cb2 = GetCb2Instance();
+
+        int lives = cb2.GetLives();
+
+        Assert.Equal(4, lives);
+    }
+
+    [Theory]
+    [InlineData(-1), InlineData(0), InlineData(1), InlineData(100), InlineData(int.MaxValue)]
+    public void TestSetLives(int lives)
+    {
+        var cb2 = GetCb2Instance();
+
+        cb2.SetLives(lives);
+
+        Assert.Equal(lives, cb2.GetLives());
+    }
 }
