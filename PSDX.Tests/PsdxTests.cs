@@ -609,4 +609,25 @@ public class PsdxTests
 
         Assert.Equal(lives, cb2.GetLives());
     }
+
+    [Fact]
+    public void GetWumpaFruitsReturns11()
+    {
+        var cb2 = GetCb2Instance();
+
+        int fruits = cb2.GetWumpaFruits();
+
+        Assert.Equal(11, fruits);
+    }
+
+    [Theory]
+    [InlineData(-1), InlineData(0), InlineData(6), InlineData(109), InlineData(int.MaxValue)]
+    public void TestSetWumpaFruits(int fruits)
+    {
+        var cb2 = GetCb2Instance();
+
+        cb2.SetWumpaFruits(fruits);
+
+        Assert.Equal(fruits, cb2.GetWumpaFruits());
+    }
 }

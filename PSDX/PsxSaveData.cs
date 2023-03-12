@@ -89,6 +89,8 @@ public class CrashBandicoot2SaveData : PsxSaveData
 
     private const int _livesOffset = 0x1AC;
 
+    private const int _wumpaOffset = 0x1B0;
+
     private const int _akuAkuOffset = 0x1B4;
 
     private const int _secretsOffset = 0x1B8;
@@ -731,6 +733,28 @@ public class CrashBandicoot2SaveData : PsxSaveData
     public void SetLives(int number)
     {
         Stream.Position = _livesOffset;
+        byte[] bytes = BitConverter.GetBytes(number);
+        Stream.Write(bytes);
+    }
+
+    /// <summary>
+    /// Gets the number of Wumpa Fruits currently stored in the save data file.
+    /// </summary>
+    public int GetWumpaFruits()
+    {
+        byte[] bytes = new byte[sizeof(int)];
+        Stream.Position = _wumpaOffset;
+        Stream.ReadExactly(bytes);
+        return BitConverter.ToInt32(bytes);
+    }
+
+    /// <summary>
+    /// Sets the number of Wumpa Fruits to store in the save data file.
+    /// </summary>
+    /// <param name="number">The number of Wumpa Fruits to store.</param>
+    public void SetWumpaFruits(int number)
+    {
+        Stream.Position = _wumpaOffset;
         byte[] bytes = BitConverter.GetBytes(number);
         Stream.Write(bytes);
     }
