@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.IO;
 
@@ -653,7 +653,7 @@ public class CrashBandicoot2SaveData : PsxSaveData
         string name = System.Text.Encoding.ASCII.GetString(bytes);
         name = name.Replace('[', ' '); // The space is stored as 0x5B ('[').
         int nullIndex = name.IndexOf('\0');
-        return nullIndex > -1 ? name[0..nullIndex] : name;
+        return nullIndex > -1 ? name[..nullIndex] : name;
     }
 
     /// <summary>
