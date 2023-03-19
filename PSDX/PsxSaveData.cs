@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.IO;
 
@@ -660,7 +660,7 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// Sets the username to store in the save data file.
     /// </summary>
     /// <param name="name">The username to store.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="name"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="name"/> is <see langword="null"/>.</exception>
     /// <exception cref="ArgumentException"><paramref name="name"/> contains more than eight characters.</exception>
     public void SetUsername(string name)
     {
