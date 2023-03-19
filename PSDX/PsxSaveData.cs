@@ -105,6 +105,8 @@ public class CrashBandicoot2SaveData : PsxSaveData
 
     private const int _languageOffset = 0x3FD;
 
+    private const int _screenOffset = 0x41C;
+
     private const byte _polarTrickFlag = 0x20;
 
     /// <summary>
@@ -756,6 +758,28 @@ public class CrashBandicoot2SaveData : PsxSaveData
     {
         Stream.Position = _wumpaOffset;
         byte[] bytes = BitConverter.GetBytes(number);
+        Stream.Write(bytes);
+    }
+
+    /// <summary>
+    /// Gets the horizontal screen offset currently stored in the save data file.
+    /// </summary>
+    public int GetScreenOffset()
+    {
+        byte[] bytes = new byte[sizeof(int)];
+        Stream.Position = _screenOffset;
+        Stream.ReadExactly(bytes);
+        return BitConverter.ToInt32(bytes);
+    }
+
+    /// <summary>
+    /// Sets the horizontal screen offset to store in the save data file.
+    /// </summary>
+    /// <param name="offset">The horizontal screen offset to store.</param>
+    public void SetScreenOffset(int offset)
+    {
+        Stream.Position = _screenOffset;
+        byte[] bytes = BitConverter.GetBytes(offset);
         Stream.Write(bytes);
     }
 }

@@ -630,4 +630,26 @@ public class PsdxTests
 
         Assert.Equal(fruits, cb2.GetWumpaFruits());
     }
+
+    [Fact]
+    public void GetScreenOffsetReturns0()
+    {
+        var cb2 = GetCb2Instance();
+
+        int offset = cb2.GetScreenOffset();
+
+        Assert.Equal(0, offset);
+    }
+
+    [Theory]
+    [InlineData(-16), InlineData(-15), InlineData(-14), InlineData(-1), InlineData(0), InlineData(1)]
+    [InlineData(4), InlineData(13), InlineData(15), InlineData(18)]
+    public void TestSetScreenOffset(int offset)
+    {
+        var cb2 = GetCb2Instance();
+
+        cb2.SetScreenOffset(offset);
+
+        Assert.Equal(offset, cb2.GetScreenOffset());
+    }
 }
