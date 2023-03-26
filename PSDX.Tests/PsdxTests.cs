@@ -652,4 +652,98 @@ public class PsdxTests
 
         Assert.Equal(offset, cb2.GetScreenOffset());
     }
+
+    [Fact]
+    public void GetEffectsVolumeReturns100()
+    {
+        var cb2 = GetCb2Instance();
+
+        int volume = cb2.GetEffectsVolume();
+
+        Assert.Equal(100, volume);
+    }
+
+    [Fact]
+    public void SetEffectsVolumeThrowsAeWithWrongVolume()
+    {
+        var cb2 = GetCb2Instance();
+        int[] unsupportedVolumes =
+        {
+            int.MinValue, -105, -1, 2, 5, 8, 11, 13, 16, 19, 22, 24, 27, 30, 33, 35, 38, 41, 44, 46, 49, 52,
+            55, 57, 60, 63, 66, 68, 71, 74, 77, 79, 82, 85, 88, 91, 93, 96, 99, 101, 121, 215, int.MaxValue
+        };
+
+        foreach (int volume in unsupportedVolumes)
+        {
+            void CodeToTest() => cb2.SetEffectsVolume(volume);
+
+            _ = Assert.Throws<ArgumentException>(CodeToTest);
+        }
+    }
+
+    [Fact]
+    public void TestSetEffectsVolume()
+    {
+        var cb2 = GetCb2Instance();
+        int[] volumeLevels = new int[65]
+        {
+            0, 1, 3, 4, 6, 7, 9, 10, 12, 14, 15, 17, 18, 20, 21, 23, 25, 26, 28, 29, 31, 32, 34,
+            36, 37, 39, 40, 42, 43, 45, 47, 48, 50, 51, 53, 54, 56, 58, 59, 61, 62, 64, 65, 67,
+            69, 70, 72, 73, 75, 76, 78, 80, 81, 83, 84, 86, 87, 89, 90, 92, 94, 95, 97, 98, 100
+        };
+
+        foreach (int volume in volumeLevels)
+        {
+            cb2.SetEffectsVolume(volume);
+
+            Assert.Equal(volume, cb2.GetEffectsVolume());
+        }
+    }
+
+    [Fact]
+    public void GetMusicVolumeReturns100()
+    {
+        var cb2 = GetCb2Instance();
+
+        int volume = cb2.GetMusicVolume();
+
+        Assert.Equal(100, volume);
+    }
+
+    [Fact]
+    public void SetMusicVolumeThrowsAeWithWrongVolume()
+    {
+        var cb2 = GetCb2Instance();
+        int[] unsupportedVolumes =
+        {
+            int.MinValue, -105, -1, 2, 5, 8, 11, 13, 16, 19, 22, 24, 27, 30, 33, 35, 38, 41, 44, 46, 49, 52,
+            55, 57, 60, 63, 66, 68, 71, 74, 77, 79, 82, 85, 88, 91, 93, 96, 99, 101, 121, 215, int.MaxValue
+        };
+
+        foreach (int volume in unsupportedVolumes)
+        {
+            void CodeToTest() => cb2.SetMusicVolume(volume);
+
+            _ = Assert.Throws<ArgumentException>(CodeToTest);
+        }
+    }
+
+    [Fact]
+    public void TestSetMusicVolume()
+    {
+        var cb2 = GetCb2Instance();
+        int[] volumeLevels = new int[65]
+        {
+            0, 1, 3, 4, 6, 7, 9, 10, 12, 14, 15, 17, 18, 20, 21, 23, 25, 26, 28, 29, 31, 32, 34,
+            36, 37, 39, 40, 42, 43, 45, 47, 48, 50, 51, 53, 54, 56, 58, 59, 61, 62, 64, 65, 67,
+            69, 70, 72, 73, 75, 76, 78, 80, 81, 83, 84, 86, 87, 89, 90, 92, 94, 95, 97, 98, 100
+        };
+
+        foreach (int volume in volumeLevels)
+        {
+            cb2.SetMusicVolume(volume);
+
+            Assert.Equal(volume, cb2.GetMusicVolume());
+        }
+    }
 }

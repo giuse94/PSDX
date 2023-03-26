@@ -103,6 +103,10 @@ public class CrashBandicoot2SaveData : PsxSaveData
 
     private const int _audioTypeOffset = 0x1D4;
 
+    private const int _effectsVolumeOffset = 0x1D8;
+
+    private const int _musicVolumeOffset = 0x1DC;
+
     private const int _languageOffset = 0x3FD;
 
     private const int _screenOffset = 0x41C;
@@ -141,6 +145,13 @@ public class CrashBandicoot2SaveData : PsxSaveData
     private static readonly (byte Flag, byte Offset)[] _bossInfo = new (byte Flag, byte Offset)[_maxBossNumber]
     {
         (0x40, 0), (0x01, 1), (0x08, 0), (0x02, 1), (0x80, 0)
+    };
+
+    private static readonly int[] _volumeLevels = new int[65]
+    {
+        0, 1, 3, 4, 6, 7, 9, 10, 12, 14, 15, 17, 18, 20, 21, 23, 25, 26, 28, 29, 31, 32, 34,
+        36, 37, 39, 40, 42, 43, 45, 47, 48, 50, 51, 53, 54, 56, 58, 59, 61, 62, 64, 65, 67,
+        69, 70, 72, 73, 75, 76, 78, 80, 81, 83, 84, 86, 87, 89, 90, 92, 94, 95, 97, 98, 100
     };
 
     /// <summary>
@@ -780,6 +791,68 @@ public class CrashBandicoot2SaveData : PsxSaveData
     {
         Stream.Position = _screenOffset;
         byte[] bytes = BitConverter.GetBytes(offset);
+        Stream.Write(bytes);
+    }
+
+    /// <summary>
+    /// Gets the sound effects volume currently stored in the save data file.
+    /// </summary>
+    public int GetEffectsVolume()
+    {
+        byte[] bytes = new byte[sizeof(int)];
+        Stream.Position = _effectsVolumeOffset;
+        Stream.ReadExactly(bytes);
+        int volume = BitConverter.ToInt32(bytes);
+        return _volumeLevels[volume / 4];
+    }
+
+    /// <summary>
+    /// Sets the sound effects volume to store in the save data file.
+    /// </summary>
+    /// <param name="volume">The sound effects volume to store.</param>
+    /// <exception cref="ArgumentException">The specified <paramref name="volume"/> is not supported.</exception>
+    public void SetEffectsVolume(int volume)
+    {
+        int index = Array.IndexOf(_volumeLevels, volume);
+        if (index == -1)
+        {
+            throw new ArgumentException("The specified volume is not supported.", nameof(volume));
+        }
+
+        volume = index * 4;
+        byte[] bytes = BitConverter.GetBytes(volume);
+        Stream.Position = _effectsVolumeOffset;
+        Stream.Write(bytes);
+    }
+
+    /// <summary>
+    /// Gets the music volume currently stored in the save data file.
+    /// </summary>
+    public int GetMusicVolume()
+    {
+        byte[] bytes = new byte[sizeof(int)];
+        Stream.Position = _musicVolumeOffset;
+        Stream.ReadExactly(bytes);
+        int volume = BitConverter.ToInt32(bytes);
+        return _volumeLevels[volume / 4];
+    }
+
+    /// <summary>
+    /// Sets the music volume to store in the save data file.
+    /// </summary>
+    /// <param name="volume">The music volume to store.</param>
+    /// <exception cref="ArgumentException">The specified <paramref name="volume"/> is not supported.</exception>
+    public void SetMusicVolume(int volume)
+    {
+        int index = Array.IndexOf(_volumeLevels, volume);
+        if (index == -1)
+        {
+            throw new ArgumentException("The specified volume is not supported.", nameof(volume));
+        }
+
+        volume = index * 4;
+        byte[] bytes = BitConverter.GetBytes(volume);
+        Stream.Position = _musicVolumeOffset;
         Stream.Write(bytes);
     }
 }
