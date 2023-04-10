@@ -746,4 +746,44 @@ public class PsdxTests
             Assert.Equal(volume, cb2.GetMusicVolume());
         }
     }
+
+    [Fact]
+    public void TestGetSlotStatus()
+    {
+        var cb2 = GetCb2Instance();
+
+        bool slotIsEmpty = cb2.GetSlotStatus(1);
+        Assert.False(slotIsEmpty);
+
+        for (int i = 2; i <= 4; i++)
+        {
+            slotIsEmpty = cb2.GetSlotStatus(i);
+            Assert.True(slotIsEmpty);
+        }
+    }
+
+    [Theory]
+    [InlineData(-1), InlineData(0), InlineData(5)]
+    public void SlotRelatedMethodsThrowAoReWithWrongNumber(int slotNumber)
+    {
+        var cb2 = GetCb2Instance();
+
+        void GetSlotStatus() => cb2.GetSlotStatus(slotNumber);
+        void SetSlotStatus() => cb2.SetSlotStatus(slotNumber, true);
+
+        _ = Assert.Throws<ArgumentOutOfRangeException>(GetSlotStatus);
+        _ = Assert.Throws<ArgumentOutOfRangeException>(SetSlotStatus);
+    }
+
+    [Theory]
+    [InlineData(1, false), InlineData(1, true), InlineData(2, false), InlineData(2, true)]
+    [InlineData(3, false), InlineData(3, true), InlineData(4, false), InlineData(4, true)]
+    public void TestSetSlotStatus(int slotNumber, bool empty)
+    {
+        var cb2 = GetCb2Instance();
+
+        cb2.SetSlotStatus(slotNumber, empty);
+
+        Assert.Equal(empty, cb2.GetSlotStatus(slotNumber));
+    }
 }

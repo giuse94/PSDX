@@ -77,9 +77,13 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// </summary>
     private const string _serialNumber = "BESCES-00967";
 
+    private const int _slotLength = 676;
+
     private const int _maxLevelNumber = 27;
 
     private const int _maxBossNumber = 5;
+
+    private const int _freeSlotOffset = 0x184;
 
     private const int _lastPlayedLevelOffset = 0x188;
 
@@ -201,6 +205,32 @@ public class CrashBandicoot2SaveData : PsxSaveData
         {
             throw new ArgumentOutOfRangeException(nameof(bossNumber), bossNumber, "The specified boss does not exist.");
         }
+    }
+
+    /// <summary>
+    /// Checks whether the specified save data slot number exists, and throws an exception if not.
+    /// </summary>
+    /// <param name="slot">The number of the slot to check for.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The specified slot number is less than one or greater than four.</exception>
+    private static void CheckSlotNumber(int slot)
+    {
+        if (slot < 1 || slot > 4)
+        {
+            throw new ArgumentOutOfRangeException(nameof(slot), slot, "The specified slot does not exist.");
+        }
+    }
+
+    /// <summary>
+    /// Gets the absolute offset of an entity within the save data file.
+    /// </summary>
+    /// <param name="baseOffset">The offset referred to the first slot.</param>
+    /// <param name="slot">The number of the slot.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The specified slot number is less than one or greater than four.</exception>
+    private static int GetOffset(int baseOffset, int slot)
+    {
+        CheckSlotNumber(slot);
+
+        return baseOffset + _slotLength * (slot - 1);
     }
 
     /// <summary>
@@ -854,5 +884,30 @@ public class CrashBandicoot2SaveData : PsxSaveData
         byte[] bytes = BitConverter.GetBytes(volume);
         Stream.Position = _musicVolumeOffset;
         Stream.Write(bytes);
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether the specified save data slot is empty (free).
+    /// </summary>
+    /// <param name="slot">The number of the slot to get the status of.</param>
+    /// <returns><see langword="true"/> if the slot is empty, otherwise <see langword="false"/>.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The specified <paramref name="slot"/> number does not exist.</exception>
+    public bool GetSlotStatus(int slot)
+    {
+        Stream.Position = GetOffset(_freeSlotOffset, slot);
+        return Stream.ReadByte() == 1;
+    }
+
+    /// <summary>
+    /// Sets a value indicating whether the specified save data slot is empty (free).
+    /// </summary>
+    /// <param name="slot">The number of the slot to set the status of.</param>
+    /// <param name="empty">Determines whether to mark the specified slot as empty (free).</param>
+    /// <exception cref="ArgumentOutOfRangeException">The specified <paramref name="slot"/> number does not exist.</exception>
+    public void SetSlotStatus(int slot, bool empty)
+    {
+        Stream.Position = GetOffset(_freeSlotOffset, slot);
+        int flag = empty ? 1 : 0;
+        Stream.WriteByte((byte)flag);
     }
 }
