@@ -31,6 +31,20 @@ public class PsdxTests
     }
 
     [Fact]
+    public void TestGetFileName()
+    {
+        var cb2 = GetCb2Instance();
+        using var fs = new FileStream("cb3.mcs", FileMode.Open);
+        var cb3 = new PsxSaveData(fs);
+
+        string cb2FileName = cb2.GetFileName();
+        string cb3FileName = cb3.GetFileName();
+
+        Assert.Equal("BESCES-0096700034601", cb2FileName);
+        Assert.Equal("BESCES-0142000000000", cb3FileName);
+    }
+
+    [Fact]
     public void Cb2SaveDataCtorThrowsAneWithNullStream()
     {
         static void CodeToTest() => _ = new CrashBandicoot2SaveData(null!); // Intentionally suppress the (right) warning.
