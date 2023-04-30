@@ -83,6 +83,8 @@ public class CrashBandicoot2SaveData : PsxSaveData
 
     private const int _maxBossNumber = 5;
 
+    // The following offsets refer to the first slot.
+
     private const int _freeSlotOffset = 0x184;
 
     private const int _lastPlayedLevelOffset = 0x188;
@@ -468,10 +470,14 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// <summary>
     /// Gets the number of Aku Aku masks currently stored in the save data file.
     /// </summary>
-    public int GetAkuAkuMasks()
+    /// <param name="slot">The slot where to get the data.</param>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// The specified <paramref name="slot"/> number is less than one or greater than four.
+    /// </exception>
+    public int GetAkuAkuMasks(int slot = 1)
     {
+        Stream.Position = GetOffset(_akuAkuOffset, slot);
         byte[] bytes = new byte[sizeof(int)];
-        Stream.Position = _akuAkuOffset;
         Stream.ReadExactly(bytes);
         return BitConverter.ToInt32(bytes);
     }
@@ -480,9 +486,13 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// Sets the number of Aku Aku masks to store in the save data file.
     /// </summary>
     /// <param name="number">The number of Aku Aku masks to store.</param>
-    public void SetAkuAkuMasks(int number)
+    /// <param name="slot">The slot where to store the data.</param>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// The specified <paramref name="slot"/> number is less than one or greater than four.
+    /// </exception>
+    public void SetAkuAkuMasks(int number, int slot = 1)
     {
-        Stream.Position = _akuAkuOffset;
+        Stream.Position = GetOffset(_akuAkuOffset, slot);
         byte[] bytes = BitConverter.GetBytes(number);
         Stream.Write(bytes);
     }
@@ -491,14 +501,18 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// Gets a value indicating whether the specified <paramref name="level"/> has been traversed, i.e. its exit has been reached.
     /// </summary>
     /// <param name="level">The number of the level to check for the progress status.</param>
+    /// <param name="slot">The slot where to get the data.</param>
     /// <returns><see langword="true"/> if the level has been traversed, otherwise <see langword="false"/>.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">The specified <paramref name="level"/> number is less than one or greater than twenty-seven.</exception>
-    public bool GetProgressStatus(int level)
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// The specified <paramref name="level"/> number is less than one or greater than twenty-seven,
+    /// or the specified <paramref name="slot"/> number is less than one or greater than four.
+    /// </exception>
+    public bool GetProgressStatus(int level, int slot = 1)
     {
         CheckLevelNumber(level);
 
         (byte levelProgressFlag, byte levelProgressOffset) = _commonInfo[level - 1];
-        int progressOffset = _progressOffset + levelProgressOffset;
+        int progressOffset = GetOffset(_progressOffset + levelProgressOffset, slot);
         return GetFlag(progressOffset, levelProgressFlag);
     }
 
@@ -507,13 +521,17 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// </summary>
     /// <param name="level">The number of the level to set the progress status of.</param>
     /// <param name="traversed">Determines whether the level has been traversed.</param>
-    /// <exception cref="ArgumentOutOfRangeException">The specified level number is less than one or greater than twenty-seven.</exception>
-    public void SetProgressStatus(int level, bool traversed)
+    /// <param name="slot">The slot where to store the data.</param>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// The specified <paramref name="level"/> number is less than one or greater than twenty-seven,
+    /// or the specified <paramref name="slot"/> number is less than one or greater than four.
+    /// </exception>
+    public void SetProgressStatus(int level, bool traversed, int slot = 1)
     {
         CheckLevelNumber(level);
 
         (byte levelProgressFlag, byte levelProgressOffset) = _commonInfo[level - 1];
-        int progressOffset = _progressOffset + levelProgressOffset;
+        int progressOffset = GetOffset(_progressOffset + levelProgressOffset, slot);
         SetFlag(progressOffset, levelProgressFlag, traversed);
     }
 
@@ -521,15 +539,19 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// Gets a value indicating whether the crystal has been collected in the specified <paramref name="level"/>.
     /// </summary>
     /// <param name="level">The number of the level to check for the crystal status.</param>
+    /// <param name="slot">The slot where to get the data.</param>
     /// <returns><see langword="true"/> if the crystal has been collected, otherwise <see langword="false"/>.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">The specified <paramref name="level"/> number is less than one or greater than twenty-seven.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// The specified <paramref name="level"/> number is less than one or greater than twenty-seven,
+    /// or the specified <paramref name="slot"/> number is less than one or greater than four.
+    /// </exception>
     /// <exception cref="InvalidOperationException">The specified <paramref name="level"/> does not contain a crystal.</exception>
-    public bool GetCrystalStatus(int level)
+    public bool GetCrystalStatus(int level, int slot = 1)
     {
         CheckCrystalNumber(level);
 
         (byte levelCrystalFlag, byte levelCrystalOffset) = _commonInfo[level - 1];
-        int crystalOffset = _crystalsOffset + levelCrystalOffset;
+        int crystalOffset = GetOffset(_crystalsOffset + levelCrystalOffset, slot);
         return GetFlag(crystalOffset, levelCrystalFlag);
     }
 
@@ -538,14 +560,18 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// </summary>
     /// <param name="level">The number of the level to set the crystal status of.</param>
     /// <param name="collected">Determines whether the crystal has been collected in the level.</param>
-    /// <exception cref="ArgumentOutOfRangeException">The specified <paramref name="level"/> number is less than one or greater than twenty-seven.</exception>
+    /// <param name="slot">The slot where to store the data.</param>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// The specified <paramref name="level"/> number is less than one or greater than twenty-seven,
+    /// or the specified <paramref name="slot"/> number is less than one or greater than four.
+    /// </exception>
     /// <exception cref="InvalidOperationException">The specified <paramref name="level"/> does not contain a crystal.</exception>
-    public void SetCrystalStatus(int level, bool collected)
+    public void SetCrystalStatus(int level, bool collected, int slot = 1)
     {
         CheckCrystalNumber(level);
 
         (byte levelCrystalFlag, byte levelCrystalOffset) = _commonInfo[level - 1];
-        int crystalOffset = _crystalsOffset + levelCrystalOffset;
+        int crystalOffset = GetOffset(_crystalsOffset + levelCrystalOffset, slot);
         SetFlag(crystalOffset, levelCrystalFlag, collected);
     }
 
@@ -554,17 +580,21 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// </summary>
     /// <param name="level">The number of the level to check for the gem status.</param>
     /// <param name="gemType">The type of gem to check the status of.</param>
+    /// <param name="slot">The slot where to get the data.</param>
     /// <returns><see langword="true"/> if the gem has been collected, otherwise <see langword="false"/>.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">The specified <paramref name="level"/> number is less than one or greater than twenty-seven.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// The specified <paramref name="level"/> number is less than one or greater than twenty-seven,
+    /// or the specified <paramref name="slot"/> number is less than one or greater than four.
+    /// </exception>
     /// <exception cref="InvalidOperationException">
     /// <paramref name="gemType"/> is <see cref="GemType.SecondGem"/> and the specified <paramref name="level"/> does not contain that type of gem.
     /// </exception>
     /// <exception cref="InvalidEnumArgumentException">The specified <paramref name="gemType"/> is not a valid enum value.</exception>
-    public bool GetGemStatus(int level, GemType gemType)
+    public bool GetGemStatus(int level, GemType gemType, int slot = 1)
     {
         (byte levelGemFlag, byte levelGemOffset) = GetLevelGemInfo(level, gemType);
 
-        int gemOffset = _gemsOffset + levelGemOffset;
+        int gemOffset = GetOffset(_gemsOffset + levelGemOffset, slot);
         return GetFlag(gemOffset, levelGemFlag);
     }
 
@@ -574,16 +604,20 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// <param name="level">The number of the level to set the gem status of.</param>
     /// <param name="gemType">The type of gem to set the status of.</param>
     /// <param name="collected">Determines whether the gem has been collected in the level.</param>
-    /// <exception cref="ArgumentOutOfRangeException">The specified <paramref name="level"/> number is less than one or greater than twenty-seven.</exception>
+    /// <param name="slot">The slot where to store the data.</param>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// The specified <paramref name="level"/> number is less than one or greater than twenty-seven,
+    /// or the specified <paramref name="slot"/> number is less than one or greater than four.
+    /// </exception>
     /// <exception cref="InvalidOperationException">
     /// <paramref name="gemType"/> is <see cref="GemType.SecondGem"/> and the specified <paramref name="level"/> does not contain that type of gem.
     /// </exception>
     /// <exception cref="InvalidEnumArgumentException">The specified <paramref name="gemType"/> is not a valid enum value.</exception>
-    public void SetGemStatus(int level, GemType gemType, bool collected)
+    public void SetGemStatus(int level, GemType gemType, bool collected, int slot = 1)
     {
         (byte levelGemFlag, byte levelGemOffset) = GetLevelGemInfo(level, gemType);
 
-        int gemOffset = _gemsOffset + levelGemOffset;
+        int gemOffset = GetOffset(_gemsOffset + levelGemOffset, slot);
         SetFlag(gemOffset, levelGemFlag, collected);
     }
 
@@ -591,14 +625,18 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// Gets a value indicating whether the specified boss has been defeated.
     /// </summary>
     /// <param name="bossNumber">The number of the boss to get the status of.</param>
+    /// <param name="slot">The slot where to get the data.</param>
     /// <returns><see langword="true"/> if the boss has been defeated, otherwise <see langword="false"/>.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">The specified boss number is less than one or greater than five.</exception>
-    public bool GetBossStatus(int bossNumber)
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// The specified boss number is less than one or greater than five,
+    /// or the specified <paramref name="slot"/> number is less than one or greater than four.
+    /// </exception>
+    public bool GetBossStatus(int bossNumber, int slot = 1)
     {
         CheckBossNumber(bossNumber);
 
         (byte bossFlag, byte bossRelativeOffset) = _bossInfo[bossNumber - 1];
-        int bossOffset = _progressOffset + bossRelativeOffset;
+        int bossOffset = GetOffset(_progressOffset + bossRelativeOffset, slot);
         return GetFlag(bossOffset, bossFlag);
     }
 
@@ -607,13 +645,17 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// </summary>
     /// <param name="bossNumber">The number of the boss to set the status of.</param>
     /// <param name="defeated">Determines whether the boss has been defeated.</param>
-    /// <exception cref="ArgumentOutOfRangeException">The specified boss number is less than one or greater than five.</exception>
-    public void SetBossStatus(int bossNumber, bool defeated)
+    /// <param name="slot">The slot where to store the data.</param>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// The specified boss number is less than one or greater than five,
+    /// or the specified <paramref name="slot"/> number is less than one or greater than four.
+    /// </exception>
+    public void SetBossStatus(int bossNumber, bool defeated, int slot = 1)
     {
         CheckBossNumber(bossNumber);
 
         (byte bossFlag, byte bossRelativeOffset) = _bossInfo[bossNumber - 1];
-        int bossOffset = _progressOffset + bossRelativeOffset;
+        int bossOffset = GetOffset(_progressOffset + bossRelativeOffset, slot);
         SetFlag(bossOffset, bossFlag, defeated);
     }
 
@@ -621,45 +663,65 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// Gets a value indicating whether the secret exit has been found in the specified <paramref name="level"/>.
     /// </summary>
     /// <param name="level">The number of the level to check for.</param>
+    /// <param name="slot">The slot where to get the data.</param>
     /// <returns><see langword="true"/> if the secret exit has been found, otherwise <see langword="false"/>.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">The specified <paramref name="level"/> number is less than one or greater than twenty-seven.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// The specified <paramref name="level"/> number is less than one or greater than twenty-seven,
+    /// or the specified <paramref name="slot"/> number is less than one or greater than four.
+    /// </exception>
     /// <exception cref="InvalidOperationException">The specified <paramref name="level"/> does not contain a secret exit.</exception>
-    public bool GetSecretExitStatus(int level) => GetFlag(_secretsOffset, GetSecretExitFlag(level));
+    public bool GetSecretExitStatus(int level, int slot = 1) => GetFlag(GetOffset(_secretsOffset, slot), GetSecretExitFlag(level));
 
     /// <summary>
     /// Sets a value indicating whether the secret exit has been found in the specified <paramref name="level"/>.
     /// </summary>
     /// <param name="level">The number of the level to set the secret exit status of.</param>
     /// <param name="found">Determines whether the secret exit has been found.</param>
-    /// <exception cref="ArgumentOutOfRangeException">The specified <paramref name="level"/> number is less than one or greater than twenty-seven.</exception>
+    /// <param name="slot">The slot where to store the data.</param>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// The specified <paramref name="level"/> number is less than one or greater than twenty-seven,
+    /// or the specified <paramref name="slot"/> number is less than one or greater than four.
+    /// </exception>
     /// <exception cref="InvalidOperationException">The specified <paramref name="level"/> does not contain a secret exit.</exception>
-    public void SetSecretExitStatus(int level, bool found) => SetFlag(_secretsOffset, GetSecretExitFlag(level), found);
+    public void SetSecretExitStatus(int level, bool found, int slot = 1) => SetFlag(GetOffset(_secretsOffset, slot), GetSecretExitFlag(level), found);
 
     /// <summary>
     /// Gets a value indicating whether the Polar trick has been performed.<br/>
     /// The "Polar trick" is the one that allows Crash to gain ten lives.
     /// </summary>
+    /// <param name="slot">The slot where to get the data.</param>
     /// <returns><see langword="true"/> if the trick has been performed, otherwise <see langword="false"/>.</returns>
-    public bool GetPolarTrickStatus() => GetFlag(_secretsOffset, _polarTrickFlag);
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// The specified <paramref name="slot"/> number is less than one or greater than four.
+    /// </exception>
+    public bool GetPolarTrickStatus(int slot = 1) => GetFlag(GetOffset(_secretsOffset, slot), _polarTrickFlag);
 
     /// <summary>
     /// Sets a value indicating whether the Polar trick has been performed.<br/>
     /// The "Polar trick" is the one that allows Crash to gain ten lives.
     /// </summary>
     /// <param name="performed">Determines whether the trick has been performed.</param>
-    public void SetPolarTrickStatus(bool performed) => SetFlag(_secretsOffset, _polarTrickFlag, performed);
+    /// <param name="slot">The slot where to store the data.</param>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// The specified <paramref name="slot"/> number is less than one or greater than four.
+    /// </exception>
+    public void SetPolarTrickStatus(bool performed, int slot = 1) => SetFlag(GetOffset(_secretsOffset, slot), _polarTrickFlag, performed);
 
     /// <summary>
     /// Gets the last played level number currently stored in the save data file.
     /// </summary>
+    /// <param name="slot">The slot where to get the data.</param>
     /// <returns>
     /// A number in the range [1, 32], where the values in the range [28, 32] represent
     /// the five boss levels. This is how the game maps them internally.
     /// </returns>
-    public int GetLastPlayedLevel()
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// The specified <paramref name="slot"/> number is less than one or greater than four.
+    /// </exception>
+    public int GetLastPlayedLevel(int slot = 1)
     {
+        Stream.Position = GetOffset(_lastPlayedLevelOffset, slot);
         byte[] bytes = new byte[sizeof(int)];
-        Stream.Position = _lastPlayedLevelOffset;
         Stream.ReadExactly(bytes);
         return BitConverter.ToInt32(bytes);
     }
@@ -671,14 +733,16 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// The number of the level to be set as the last played.<br/>Values in the range [28, 32] are
     /// allowed and represent the five boss levels. This is how the game maps them internally.
     /// </param>
+    /// <param name="slot">The slot where to store the data.</param>
     /// <exception cref="ArgumentOutOfRangeException">
-    /// The specified <paramref name="level"/> number is less than one or greater than thirty-two.
+    /// The specified <paramref name="level"/> number is less than one or greater than thirty-two,
+    /// or the specified <paramref name="slot"/> number is less than one or greater than four.
     /// </exception>
-    public void SetLastPlayedLevel(int level)
+    public void SetLastPlayedLevel(int level, int slot = 1)
     {
         CheckLevelNumber(level, true);
 
-        Stream.Position = _lastPlayedLevelOffset;
+        Stream.Position = GetOffset(_lastPlayedLevelOffset, slot);
         byte[] bytes = BitConverter.GetBytes(level);
         Stream.Write(bytes);
     }
@@ -686,10 +750,14 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// <summary>
     /// Gets the username currently stored in the save data file.
     /// </summary>
-    public string GetUsername()
+    /// <param name="slot">The slot where to get the data.</param>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// The specified <paramref name="slot"/> number is less than one or greater than four.
+    /// </exception>
+    public string GetUsername(int slot = 1)
     {
+        Stream.Position = GetOffset(_usernameOffset, slot);
         byte[] bytes = new byte[8];
-        Stream.Position = _usernameOffset;
         Stream.ReadExactly(bytes);
         string name = System.Text.Encoding.ASCII.GetString(bytes);
         name = name.Replace('[', ' '); // The space is stored as 0x5B ('[').
@@ -701,9 +769,13 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// Sets the username to store in the save data file.
     /// </summary>
     /// <param name="name">The username to store.</param>
+    /// <param name="slot">The slot where to store the data.</param>
     /// <exception cref="ArgumentNullException"><paramref name="name"/> is <see langword="null"/>.</exception>
     /// <exception cref="ArgumentException"><paramref name="name"/> contains more than eight characters.</exception>
-    public void SetUsername(string name)
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// The specified <paramref name="slot"/> number is less than one or greater than four.
+    /// </exception>
+    public void SetUsername(string name, int slot = 1)
     {
         if (name == null)
         {
@@ -716,16 +788,20 @@ public class CrashBandicoot2SaveData : PsxSaveData
 
         string nameToSave = name.Replace(' ', '[') + '\0'; // The space is stored as 0x5B ('[').
         byte[] nameBytes = System.Text.Encoding.ASCII.GetBytes(nameToSave);
-        Stream.Position = _usernameOffset;
+        Stream.Position = GetOffset(_usernameOffset, slot);
         Stream.Write(nameBytes);
     }
 
     /// <summary>
     /// Gets the language currently stored in the save data file.
     /// </summary>
-    public Language GetLanguage()
+    /// <param name="slot">The slot where to get the data.</param>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// The specified <paramref name="slot"/> number is less than one or greater than four.
+    /// </exception>
+    public Language GetLanguage(int slot = 1)
     {
-        Stream.Position = _languageOffset;
+        Stream.Position = GetOffset(_languageOffset, slot);
         return (Language)Stream.ReadByte();
     }
 
@@ -733,18 +809,26 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// Sets the language to store in the save data file.
     /// </summary>
     /// <param name="language">The language to store.</param>
-    public void SetLanguage(Language language)
+    /// <param name="slot">The slot where to store the data.</param>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// The specified <paramref name="slot"/> number is less than one or greater than four.
+    /// </exception>
+    public void SetLanguage(Language language, int slot = 1)
     {
-        Stream.Position = _languageOffset;
+        Stream.Position = GetOffset(_languageOffset, slot);
         Stream.WriteByte((byte)language);
     }
 
     /// <summary>
     /// Gets the audio type currently stored in the save data file.
     /// </summary>
-    public AudioType GetAudioType()
+    /// <param name="slot">The slot where to get the data.</param>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// The specified <paramref name="slot"/> number is less than one or greater than four.
+    /// </exception>
+    public AudioType GetAudioType(int slot = 1)
     {
-        Stream.Position = _audioTypeOffset;
+        Stream.Position = GetOffset(_audioTypeOffset, slot);
         return (AudioType)Stream.ReadByte();
     }
 
@@ -752,19 +836,27 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// Sets the audio type to store in the save data file.
     /// </summary>
     /// <param name="audioType">The type of audio to store.</param>
-    public void SetAudioType(AudioType audioType)
+    /// <param name="slot">The slot where to store the data.</param>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// The specified <paramref name="slot"/> number is less than one or greater than four.
+    /// </exception>
+    public void SetAudioType(AudioType audioType, int slot = 1)
     {
-        Stream.Position = _audioTypeOffset;
+        Stream.Position = GetOffset(_audioTypeOffset, slot);
         Stream.WriteByte((byte)audioType);
     }
 
     /// <summary>
     /// Gets the number of lives currently stored in the save data file.
     /// </summary>
-    public int GetLives()
+    /// <param name="slot">The slot where to get the data.</param>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// The specified <paramref name="slot"/> number is less than one or greater than four.
+    /// </exception>
+    public int GetLives(int slot = 1)
     {
+        Stream.Position = GetOffset(_livesOffset, slot);
         byte[] bytes = new byte[sizeof(int)];
-        Stream.Position = _livesOffset;
         Stream.ReadExactly(bytes);
         return BitConverter.ToInt32(bytes);
     }
@@ -773,9 +865,13 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// Sets the number of lives to store in the save data file.
     /// </summary>
     /// <param name="number">The number of lives to store.</param>
-    public void SetLives(int number)
+    /// <param name="slot">The slot where to store the data.</param>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// The specified <paramref name="slot"/> number is less than one or greater than four.
+    /// </exception>
+    public void SetLives(int number, int slot = 1)
     {
-        Stream.Position = _livesOffset;
+        Stream.Position = GetOffset(_livesOffset, slot);
         byte[] bytes = BitConverter.GetBytes(number);
         Stream.Write(bytes);
     }
@@ -783,10 +879,14 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// <summary>
     /// Gets the number of Wumpa Fruits currently stored in the save data file.
     /// </summary>
-    public int GetWumpaFruits()
+    /// <param name="slot">The slot where to get the data.</param>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// The specified <paramref name="slot"/> number is less than one or greater than four.
+    /// </exception>
+    public int GetWumpaFruits(int slot = 1)
     {
+        Stream.Position = GetOffset(_wumpaOffset, slot);
         byte[] bytes = new byte[sizeof(int)];
-        Stream.Position = _wumpaOffset;
         Stream.ReadExactly(bytes);
         return BitConverter.ToInt32(bytes);
     }
@@ -795,9 +895,13 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// Sets the number of Wumpa Fruits to store in the save data file.
     /// </summary>
     /// <param name="number">The number of Wumpa Fruits to store.</param>
-    public void SetWumpaFruits(int number)
+    /// <param name="slot">The slot where to store the data.</param>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// The specified <paramref name="slot"/> number is less than one or greater than four.
+    /// </exception>
+    public void SetWumpaFruits(int number, int slot = 1)
     {
-        Stream.Position = _wumpaOffset;
+        Stream.Position = GetOffset(_wumpaOffset, slot);
         byte[] bytes = BitConverter.GetBytes(number);
         Stream.Write(bytes);
     }
@@ -805,10 +909,14 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// <summary>
     /// Gets the horizontal screen offset currently stored in the save data file.
     /// </summary>
-    public int GetScreenOffset()
+    /// <param name="slot">The slot where to get the data.</param>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// The specified <paramref name="slot"/> number is less than one or greater than four.
+    /// </exception>
+    public int GetScreenOffset(int slot = 1)
     {
+        Stream.Position = GetOffset(_screenOffset, slot);
         byte[] bytes = new byte[sizeof(int)];
-        Stream.Position = _screenOffset;
         Stream.ReadExactly(bytes);
         return BitConverter.ToInt32(bytes);
     }
@@ -817,9 +925,13 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// Sets the horizontal screen offset to store in the save data file.
     /// </summary>
     /// <param name="offset">The horizontal screen offset to store.</param>
-    public void SetScreenOffset(int offset)
+    /// <param name="slot">The slot where to store the data.</param>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// The specified <paramref name="slot"/> number is less than one or greater than four.
+    /// </exception>
+    public void SetScreenOffset(int offset, int slot = 1)
     {
-        Stream.Position = _screenOffset;
+        Stream.Position = GetOffset(_screenOffset, slot);
         byte[] bytes = BitConverter.GetBytes(offset);
         Stream.Write(bytes);
     }
@@ -827,10 +939,14 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// <summary>
     /// Gets the sound effects volume currently stored in the save data file.
     /// </summary>
-    public int GetEffectsVolume()
+    /// <param name="slot">The slot where to get the data.</param>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// The specified <paramref name="slot"/> number is less than one or greater than four.
+    /// </exception>
+    public int GetEffectsVolume(int slot = 1)
     {
+        Stream.Position = GetOffset(_effectsVolumeOffset, slot);
         byte[] bytes = new byte[sizeof(int)];
-        Stream.Position = _effectsVolumeOffset;
         Stream.ReadExactly(bytes);
         int volume = BitConverter.ToInt32(bytes);
         return _volumeLevels[volume / 4];
@@ -840,8 +956,12 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// Sets the sound effects volume to store in the save data file.
     /// </summary>
     /// <param name="volume">The sound effects volume to store.</param>
+    /// <param name="slot">The slot where to store the data.</param>
     /// <exception cref="ArgumentException">The specified <paramref name="volume"/> is not supported.</exception>
-    public void SetEffectsVolume(int volume)
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// The specified <paramref name="slot"/> number is less than one or greater than four.
+    /// </exception>
+    public void SetEffectsVolume(int volume, int slot = 1)
     {
         int index = Array.IndexOf(_volumeLevels, volume);
         if (index == -1)
@@ -851,17 +971,21 @@ public class CrashBandicoot2SaveData : PsxSaveData
 
         volume = index * 4;
         byte[] bytes = BitConverter.GetBytes(volume);
-        Stream.Position = _effectsVolumeOffset;
+        Stream.Position = GetOffset(_effectsVolumeOffset, slot);
         Stream.Write(bytes);
     }
 
     /// <summary>
     /// Gets the music volume currently stored in the save data file.
     /// </summary>
-    public int GetMusicVolume()
+    /// <param name="slot">The slot where to get the data.</param>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// The specified <paramref name="slot"/> number is less than one or greater than four.
+    /// </exception>
+    public int GetMusicVolume(int slot = 1)
     {
+        Stream.Position = GetOffset(_musicVolumeOffset, slot);
         byte[] bytes = new byte[sizeof(int)];
-        Stream.Position = _musicVolumeOffset;
         Stream.ReadExactly(bytes);
         int volume = BitConverter.ToInt32(bytes);
         return _volumeLevels[volume / 4];
@@ -871,8 +995,12 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// Sets the music volume to store in the save data file.
     /// </summary>
     /// <param name="volume">The music volume to store.</param>
+    /// <param name="slot">The slot where to store the data.</param>
     /// <exception cref="ArgumentException">The specified <paramref name="volume"/> is not supported.</exception>
-    public void SetMusicVolume(int volume)
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// The specified <paramref name="slot"/> number is less than one or greater than four.
+    /// </exception>
+    public void SetMusicVolume(int volume, int slot = 1)
     {
         int index = Array.IndexOf(_volumeLevels, volume);
         if (index == -1)
@@ -882,7 +1010,7 @@ public class CrashBandicoot2SaveData : PsxSaveData
 
         volume = index * 4;
         byte[] bytes = BitConverter.GetBytes(volume);
-        Stream.Position = _musicVolumeOffset;
+        Stream.Position = GetOffset(_musicVolumeOffset, slot);
         Stream.Write(bytes);
     }
 
@@ -891,7 +1019,9 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// </summary>
     /// <param name="slot">The number of the slot to get the status of.</param>
     /// <returns><see langword="true"/> if the slot is empty, otherwise <see langword="false"/>.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">The specified <paramref name="slot"/> number does not exist.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// The specified <paramref name="slot"/> number is less than one or greater than four.
+    /// </exception>
     public bool GetSlotStatus(int slot)
     {
         Stream.Position = GetOffset(_freeSlotOffset, slot);
@@ -903,7 +1033,9 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// </summary>
     /// <param name="slot">The number of the slot to set the status of.</param>
     /// <param name="empty">Determines whether to mark the specified slot as empty (free).</param>
-    /// <exception cref="ArgumentOutOfRangeException">The specified <paramref name="slot"/> number does not exist.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// The specified <paramref name="slot"/> number is less than one or greater than four.
+    /// </exception>
     public void SetSlotStatus(int slot, bool empty)
     {
         Stream.Position = GetOffset(_freeSlotOffset, slot);

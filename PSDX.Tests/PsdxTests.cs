@@ -763,19 +763,6 @@ public class PsdxTests
     }
 
     [Theory]
-    [InlineData(-1), InlineData(0), InlineData(5)]
-    public void SlotRelatedMethodsThrowAoReWithWrongNumber(int slotNumber)
-    {
-        var cb2 = GetCb2Instance();
-
-        void GetSlotStatus() => cb2.GetSlotStatus(slotNumber);
-        void SetSlotStatus() => cb2.SetSlotStatus(slotNumber, true);
-
-        _ = Assert.Throws<ArgumentOutOfRangeException>(GetSlotStatus);
-        _ = Assert.Throws<ArgumentOutOfRangeException>(SetSlotStatus);
-    }
-
-    [Theory]
     [InlineData(1, false), InlineData(1, true), InlineData(2, false), InlineData(2, true)]
     [InlineData(3, false), InlineData(3, true), InlineData(4, false), InlineData(4, true)]
     public void TestSetSlotStatus(int slotNumber, bool empty)
@@ -785,5 +772,55 @@ public class PsdxTests
         cb2.SetSlotStatus(slotNumber, empty);
 
         Assert.Equal(empty, cb2.GetSlotStatus(slotNumber));
+    }
+
+    [Theory]
+    [InlineData(-1), InlineData(0), InlineData(5)]
+    public void MethodsThrowAoReWithWrongSlot(int slotNumber)
+    {
+        var cb2 = GetCb2Instance();
+
+        var actions = new Action[]
+        {
+            () => cb2.GetAkuAkuMasks(slotNumber),
+            () => cb2.SetAkuAkuMasks(3, slotNumber),
+            () => cb2.GetProgressStatus(1, slotNumber),
+            () => cb2.SetProgressStatus(1, true, slotNumber),
+            () => cb2.GetCrystalStatus(2, slotNumber),
+            () => cb2.SetCrystalStatus(2, false, slotNumber),
+            () => cb2.GetGemStatus(3, CrashBandicoot2SaveData.GemType.AllBoxesGem, slotNumber),
+            () => cb2.SetGemStatus(3, CrashBandicoot2SaveData.GemType.AllBoxesGem, true, slotNumber),
+            () => cb2.GetBossStatus(1, slotNumber),
+            () => cb2.SetBossStatus(1, true, slotNumber),
+            () => cb2.GetSecretExitStatus(7, slotNumber),
+            () => cb2.SetSecretExitStatus(13, true, slotNumber),
+            () => cb2.GetPolarTrickStatus(slotNumber),
+            () => cb2.SetPolarTrickStatus(false, slotNumber),
+            () => cb2.GetLastPlayedLevel(slotNumber),
+            () => cb2.SetLastPlayedLevel(5, slotNumber),
+            () => cb2.GetUsername(slotNumber),
+            () => cb2.SetUsername("A", slotNumber),
+            () => cb2.GetLanguage(slotNumber),
+            () => cb2.SetLanguage(CrashBandicoot2SaveData.Language.English, slotNumber),
+            () => cb2.GetAudioType(slotNumber),
+            () => cb2.SetAudioType(CrashBandicoot2SaveData.AudioType.Stereo, slotNumber),
+            () => cb2.GetLives(slotNumber),
+            () => cb2.SetLives(100, slotNumber),
+            () => cb2.GetWumpaFruits(slotNumber),
+            () => cb2.SetWumpaFruits(50, slotNumber),
+            () => cb2.GetScreenOffset(slotNumber),
+            () => cb2.SetScreenOffset(0, slotNumber),
+            () => cb2.GetEffectsVolume(slotNumber),
+            () => cb2.SetEffectsVolume(100, slotNumber),
+            () => cb2.GetMusicVolume(slotNumber),
+            () => cb2.SetMusicVolume(0, slotNumber),
+            () => cb2.GetSlotStatus(slotNumber),
+            () => cb2.SetSlotStatus(slotNumber, true)
+        };
+
+        foreach (var action in actions)
+        {
+            _ = Assert.Throws<ArgumentOutOfRangeException>(action);
+        }
     }
 }
