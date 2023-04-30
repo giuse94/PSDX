@@ -164,16 +164,17 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// Checks whether the specified <paramref name="level"/> number exists, and throws an exception if not.
     /// </summary>
     /// <param name="level">The number of the level to check for.</param>
-    /// <param name="includeBossLevels">
-    /// Determines whether to extend the range of allowed values for <paramref name="level"/> by including the boss levels.
+    /// <param name="allowExtraLevels">
+    /// Determines whether to extend the range of allowed values for <paramref name="level"/>
+    /// by including the boss levels and the introductory level.
     /// </param>
     /// <exception cref="ArgumentOutOfRangeException">
     /// The specified <paramref name="level"/> number is less than one or greater than either twenty-seven
-    /// or thirty-two, depending on the value of <paramref name="includeBossLevels"/>.
+    /// or thirty-three, depending on the value of <paramref name="allowExtraLevels"/>.
     /// </exception>
-    private static void CheckLevelNumber(int level, bool includeBossLevels = false)
+    private static void CheckLevelNumber(int level, bool allowExtraLevels = false)
     {
-        int maxLevelNumber = includeBossLevels ? _maxLevelNumber + _maxBossNumber : _maxLevelNumber;
+        int maxLevelNumber = allowExtraLevels ? _maxLevelNumber + _maxBossNumber + 1 : _maxLevelNumber;
         if (level < 1 || level > maxLevelNumber)
         {
             throw new ArgumentOutOfRangeException(nameof(level), level, "The specified level does not exist.");
@@ -730,12 +731,13 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// Sets the last played level number to store in the save data file.
     /// </summary>
     /// <param name="level">
-    /// The number of the level to be set as the last played.<br/>Values in the range [28, 32] are
-    /// allowed and represent the five boss levels. This is how the game maps them internally.
+    /// The number of the level to be set as the last played.<br/>Values in the range [28, 33] are
+    /// allowed and represent the five boss levels (from 28 to 32) and the introductory level (33).
+    /// This is how the game maps them internally.
     /// </param>
     /// <param name="slot">The slot where to store the data.</param>
     /// <exception cref="ArgumentOutOfRangeException">
-    /// The specified <paramref name="level"/> number is less than one or greater than thirty-two,
+    /// The specified <paramref name="level"/> number is less than one or greater than thirty-three,
     /// or the specified <paramref name="slot"/> number is less than one or greater than four.
     /// </exception>
     public void SetLastPlayedLevel(int level, int slot = 1)

@@ -480,7 +480,7 @@ public class PsdxTests
     }
 
     [Theory]
-    [InlineData(-1), InlineData(0), InlineData(33)]
+    [InlineData(-1), InlineData(0), InlineData(34)]
     public void SetLastPlayedLevelThrowsAoReWithWrongNumber(int level)
     {
         var cb2 = GetCb2Instance();
@@ -495,7 +495,7 @@ public class PsdxTests
     {
         var cb2 = GetCb2Instance();
 
-        for (int level = 1; level < 33; level++)
+        for (int level = 1; level < 34; level++)
         {
             cb2.SetLastPlayedLevel(level);
             Assert.Equal(level, cb2.GetLastPlayedLevel());
