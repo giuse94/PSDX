@@ -63,7 +63,7 @@ public class PsxSaveData
         Stream.Position = _fileNameOffset;
         byte[] buffer = new byte[_fileNameLength];
         Stream.ReadExactly(buffer);
-        return System.Text.Encoding.ASCII.GetString(buffer);
+        return System.Text.Encoding.ASCII.GetString(buffer).TrimEnd('\0');
     }
 }
 
