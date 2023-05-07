@@ -27,7 +27,8 @@ public class PsdxTests
     {
         static void CodeToTest() => _ = new PsxSaveData(new MemoryStream());
 
-        _ = Assert.Throws<ArgumentException>(CodeToTest);
+        var exception = Assert.Throws<ArgumentException>(CodeToTest);
+        Assert.Equal("The size of Single Save Format files (.MCS) must be 8320 bytes. (Parameter 's')", exception.Message);
     }
 
     [Fact]
@@ -58,7 +59,7 @@ public class PsdxTests
         static void CodeToTest() => _ = new CrashBandicoot2SaveData(new MemoryStream());
 
         var ex = Assert.Throws<ArgumentException>(CodeToTest);
-        Assert.StartsWith("The size of Single Save Format files", ex.Message, StringComparison.InvariantCultureIgnoreCase);
+        Assert.Equal("The size of Single Save Format files (.MCS) must be 8320 bytes. (Parameter 's')", ex.Message);
     }
 
     [Fact]
@@ -69,7 +70,7 @@ public class PsdxTests
         void CodeToTest() => _ = new CrashBandicoot2SaveData(fs);
 
         var ex = Assert.Throws<ArgumentException>(CodeToTest);
-        Assert.StartsWith("Only the European version of Crash Bandicoot 2", ex.Message, StringComparison.InvariantCultureIgnoreCase);
+        Assert.Equal("Only the European version of Crash Bandicoot 2 is currently supported. (Parameter 's')", ex.Message);
     }
 
     [Fact]
@@ -193,14 +194,23 @@ public class PsdxTests
         void GetSecretExitStatus() => cb2.GetSecretExitStatus(level);
         void SetSecretExitStatus() => cb2.SetSecretExitStatus(level, true);
 
-        _ = Assert.Throws<ArgumentOutOfRangeException>(GetProgressStatus);
-        _ = Assert.Throws<ArgumentOutOfRangeException>(SetProgressStatus);
-        _ = Assert.Throws<ArgumentOutOfRangeException>(GetCrystalStatus);
-        _ = Assert.Throws<ArgumentOutOfRangeException>(SetCrystalStatus);
-        _ = Assert.Throws<ArgumentOutOfRangeException>(GetGemStatus);
-        _ = Assert.Throws<ArgumentOutOfRangeException>(SetGemStatus);
-        _ = Assert.Throws<ArgumentOutOfRangeException>(GetSecretExitStatus);
-        _ = Assert.Throws<ArgumentOutOfRangeException>(SetSecretExitStatus);
+        var exception = Assert.Throws<ArgumentOutOfRangeException>(GetProgressStatus);
+        string exceptionMessage = $"The specified level does not exist. (Parameter 'level'){Environment.NewLine}Actual value was {level}.";
+        Assert.Equal(exceptionMessage, exception.Message);
+        exception = Assert.Throws<ArgumentOutOfRangeException>(SetProgressStatus);
+        Assert.Equal(exceptionMessage, exception.Message);
+        exception = Assert.Throws<ArgumentOutOfRangeException>(GetCrystalStatus);
+        Assert.Equal(exceptionMessage, exception.Message);
+        exception = Assert.Throws<ArgumentOutOfRangeException>(SetCrystalStatus);
+        Assert.Equal(exceptionMessage, exception.Message);
+        exception = Assert.Throws<ArgumentOutOfRangeException>(GetGemStatus);
+        Assert.Equal(exceptionMessage, exception.Message);
+        exception = Assert.Throws<ArgumentOutOfRangeException>(SetGemStatus);
+        Assert.Equal(exceptionMessage, exception.Message);
+        exception = Assert.Throws<ArgumentOutOfRangeException>(GetSecretExitStatus);
+        Assert.Equal(exceptionMessage, exception.Message);
+        exception = Assert.Throws<ArgumentOutOfRangeException>(SetSecretExitStatus);
+        Assert.Equal(exceptionMessage, exception.Message);
     }
 
     [Theory]
@@ -212,8 +222,10 @@ public class PsdxTests
         void GetCrystalStatus() => cb2.GetCrystalStatus(level);
         void SetCrystalStatus() => cb2.SetCrystalStatus(level, true);
 
-        _ = Assert.Throws<InvalidOperationException>(GetCrystalStatus);
-        _ = Assert.Throws<InvalidOperationException>(SetCrystalStatus);
+        var exception = Assert.Throws<InvalidOperationException>(GetCrystalStatus);
+        Assert.Equal($"Level {level} does not contain a crystal.", exception.Message);
+        exception = Assert.Throws<InvalidOperationException>(SetCrystalStatus);
+        Assert.Equal($"Level {level} does not contain a crystal.", exception.Message);
     }
 
     [Theory]
@@ -226,8 +238,10 @@ public class PsdxTests
         void GetGemStatus() => cb2.GetGemStatus(level, CrashBandicoot2SaveData.GemType.SecondGem);
         void SetGemStatus() => cb2.SetGemStatus(level, CrashBandicoot2SaveData.GemType.SecondGem, true);
 
-        _ = Assert.Throws<InvalidOperationException>(GetGemStatus);
-        _ = Assert.Throws<InvalidOperationException>(SetGemStatus);
+        var exception = Assert.Throws<InvalidOperationException>(GetGemStatus);
+        Assert.Equal($"Level {level} does not contain the second gem.", exception.Message);
+        exception = Assert.Throws<InvalidOperationException>(SetGemStatus);
+        Assert.Equal($"Level {level} does not contain the second gem.", exception.Message);
     }
 
     [Theory]
@@ -392,8 +406,11 @@ public class PsdxTests
         void GetBossStatus() => cb2.GetBossStatus(bossNumber);
         void SetBossStatus() => cb2.SetBossStatus(bossNumber, true);
 
-        _ = Assert.Throws<ArgumentOutOfRangeException>(GetBossStatus);
-        _ = Assert.Throws<ArgumentOutOfRangeException>(SetBossStatus);
+        var exception = Assert.Throws<ArgumentOutOfRangeException>(GetBossStatus);
+        string exceptionMessage = $"The specified boss does not exist. (Parameter 'bossNumber'){Environment.NewLine}Actual value was {bossNumber}.";
+        Assert.Equal(exceptionMessage, exception.Message);
+        exception = Assert.Throws<ArgumentOutOfRangeException>(SetBossStatus);
+        Assert.Equal(exceptionMessage, exception.Message);
     }
 
     [Fact]
@@ -433,8 +450,10 @@ public class PsdxTests
         void GetSecretExitStatus() => cb2.GetSecretExitStatus(level);
         void SetSecretExitStatus() => cb2.SetSecretExitStatus(level, true);
 
-        _ = Assert.Throws<InvalidOperationException>(GetSecretExitStatus);
-        _ = Assert.Throws<InvalidOperationException>(SetSecretExitStatus);
+        var exception = Assert.Throws<InvalidOperationException>(GetSecretExitStatus);
+        Assert.Equal($"Level {level} does not contain a secret exit.", exception.Message);
+        exception = Assert.Throws<InvalidOperationException>(SetSecretExitStatus);
+        Assert.Equal($"Level {level} does not contain a secret exit.", exception.Message);
     }
 
     [Fact]
@@ -501,7 +520,9 @@ public class PsdxTests
 
         void SetLastPlayedLevel() => cb2.SetLastPlayedLevel(level);
 
-        _ = Assert.Throws<ArgumentOutOfRangeException>(SetLastPlayedLevel);
+        var exception = Assert.Throws<ArgumentOutOfRangeException>(SetLastPlayedLevel);
+        string exceptionMessage = $"The specified level does not exist. (Parameter 'level'){Environment.NewLine}Actual value was {level}.";
+        Assert.Equal(exceptionMessage, exception.Message);
     }
 
     [Fact]
@@ -543,7 +564,8 @@ public class PsdxTests
 
         void CodeToTest() => cb2.SetUsername("123456789");
 
-        _ = Assert.Throws<ArgumentException>(CodeToTest);
+        var exception = Assert.Throws<ArgumentException>(CodeToTest);
+        Assert.Equal("The username can be at most eight characters long. (Parameter 'name')", exception.Message);
     }
 
     [Theory]
@@ -691,7 +713,8 @@ public class PsdxTests
         {
             void CodeToTest() => cb2.SetEffectsVolume(volume);
 
-            _ = Assert.Throws<ArgumentException>(CodeToTest);
+            var exception = Assert.Throws<ArgumentException>(CodeToTest);
+            Assert.Equal("The specified volume is not supported. (Parameter 'volume')", exception.Message);
         }
     }
 
@@ -738,7 +761,8 @@ public class PsdxTests
         {
             void CodeToTest() => cb2.SetMusicVolume(volume);
 
-            _ = Assert.Throws<ArgumentException>(CodeToTest);
+            var exception = Assert.Throws<ArgumentException>(CodeToTest);
+            Assert.Equal("The specified volume is not supported. (Parameter 'volume')", exception.Message);
         }
     }
 
@@ -832,9 +856,11 @@ public class PsdxTests
             () => cb2.SetSlotStatus(slotNumber, true)
         };
 
+        string exceptionMessage = $"The specified slot does not exist. (Parameter 'slot'){Environment.NewLine}Actual value was {slotNumber}.";
         foreach (var action in actions)
         {
-            _ = Assert.Throws<ArgumentOutOfRangeException>(action);
+            var exception = Assert.Throws<ArgumentOutOfRangeException>(action);
+            Assert.Equal(exceptionMessage, exception.Message);
         }
     }
 }
