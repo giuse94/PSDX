@@ -185,32 +185,24 @@ public class PsdxTests
     {
         var cb2 = GetCb2Instance();
 
-        void GetProgressStatus() => cb2.GetProgressStatus(level);
-        void SetProgressStatus() => cb2.SetProgressStatus(level, true);
-        void GetCrystalStatus() => cb2.GetCrystalStatus(level);
-        void SetCrystalStatus() => cb2.SetCrystalStatus(level, true);
-        void GetGemStatus() => cb2.GetGemStatus(level, CrashBandicoot2SaveData.GemType.AllBoxesGem);
-        void SetGemStatus() => cb2.SetGemStatus(level, CrashBandicoot2SaveData.GemType.AllBoxesGem, true);
-        void GetSecretExitStatus() => cb2.GetSecretExitStatus(level);
-        void SetSecretExitStatus() => cb2.SetSecretExitStatus(level, true);
+        var actions = new Action[]
+        {
+            () => cb2.GetProgressStatus(level),
+            () => cb2.SetProgressStatus(level, true),
+            () => cb2.GetCrystalStatus(level),
+            () => cb2.SetCrystalStatus(level, true),
+            () => cb2.GetGemStatus(level, CrashBandicoot2SaveData.GemType.AllBoxesGem),
+            () => cb2.SetGemStatus(level, CrashBandicoot2SaveData.GemType.AllBoxesGem, true),
+            () => cb2.GetSecretExitStatus(level),
+            () => cb2.SetSecretExitStatus(level, true)
+        };
 
-        var exception = Assert.Throws<ArgumentOutOfRangeException>(GetProgressStatus);
         string exceptionMessage = $"The specified level does not exist. (Parameter 'level'){Environment.NewLine}Actual value was {level}.";
-        Assert.Equal(exceptionMessage, exception.Message);
-        exception = Assert.Throws<ArgumentOutOfRangeException>(SetProgressStatus);
-        Assert.Equal(exceptionMessage, exception.Message);
-        exception = Assert.Throws<ArgumentOutOfRangeException>(GetCrystalStatus);
-        Assert.Equal(exceptionMessage, exception.Message);
-        exception = Assert.Throws<ArgumentOutOfRangeException>(SetCrystalStatus);
-        Assert.Equal(exceptionMessage, exception.Message);
-        exception = Assert.Throws<ArgumentOutOfRangeException>(GetGemStatus);
-        Assert.Equal(exceptionMessage, exception.Message);
-        exception = Assert.Throws<ArgumentOutOfRangeException>(SetGemStatus);
-        Assert.Equal(exceptionMessage, exception.Message);
-        exception = Assert.Throws<ArgumentOutOfRangeException>(GetSecretExitStatus);
-        Assert.Equal(exceptionMessage, exception.Message);
-        exception = Assert.Throws<ArgumentOutOfRangeException>(SetSecretExitStatus);
-        Assert.Equal(exceptionMessage, exception.Message);
+        foreach (var action in actions)
+        {
+            var exception = Assert.Throws<ArgumentOutOfRangeException>(action);
+            Assert.Equal(exceptionMessage, exception.Message);
+        }
     }
 
     [Theory]
@@ -219,13 +211,17 @@ public class PsdxTests
     {
         var cb2 = GetCb2Instance();
 
-        void GetCrystalStatus() => cb2.GetCrystalStatus(level);
-        void SetCrystalStatus() => cb2.SetCrystalStatus(level, true);
+        var actions = new Action[]
+        {
+            () => cb2.GetCrystalStatus(level),
+            () => cb2.SetCrystalStatus(level, true)
+        };
 
-        var exception = Assert.Throws<InvalidOperationException>(GetCrystalStatus);
-        Assert.Equal($"Level {level} does not contain a crystal.", exception.Message);
-        exception = Assert.Throws<InvalidOperationException>(SetCrystalStatus);
-        Assert.Equal($"Level {level} does not contain a crystal.", exception.Message);
+        foreach (var action in actions)
+        {
+            var exception = Assert.Throws<InvalidOperationException>(action);
+            Assert.Equal($"Level {level} does not contain a crystal.", exception.Message);
+        }
     }
 
     [Theory]
@@ -235,13 +231,17 @@ public class PsdxTests
     {
         var cb2 = GetCb2Instance();
 
-        void GetGemStatus() => cb2.GetGemStatus(level, CrashBandicoot2SaveData.GemType.SecondGem);
-        void SetGemStatus() => cb2.SetGemStatus(level, CrashBandicoot2SaveData.GemType.SecondGem, true);
+        var actions = new Action[]
+        {
+            () => cb2.GetGemStatus(level, CrashBandicoot2SaveData.GemType.SecondGem),
+            () => cb2.SetGemStatus(level, CrashBandicoot2SaveData.GemType.SecondGem, true)
+        };
 
-        var exception = Assert.Throws<InvalidOperationException>(GetGemStatus);
-        Assert.Equal($"Level {level} does not contain the second gem.", exception.Message);
-        exception = Assert.Throws<InvalidOperationException>(SetGemStatus);
-        Assert.Equal($"Level {level} does not contain the second gem.", exception.Message);
+        foreach (var action in actions)
+        {
+            var exception = Assert.Throws<InvalidOperationException>(action);
+            Assert.Equal($"Level {level} does not contain the second gem.", exception.Message);
+        }
     }
 
     [Theory]
@@ -251,11 +251,16 @@ public class PsdxTests
         var cb2 = GetCb2Instance();
         var enumValue = (CrashBandicoot2SaveData.GemType)enumIntValue;
 
-        void GetGemStatus() => cb2.GetGemStatus(1, enumValue);
-        void SetGemStatus() => cb2.SetGemStatus(1, enumValue, true);
+        var actions = new Action[]
+        {
+            () => cb2.GetGemStatus(1, enumValue),
+            () => cb2.SetGemStatus(1, enumValue, true)
+        };
 
-        _ = Assert.Throws<InvalidEnumArgumentException>(GetGemStatus);
-        _ = Assert.Throws<InvalidEnumArgumentException>(SetGemStatus);
+        foreach (var action in actions)
+        {
+            _ = Assert.Throws<InvalidEnumArgumentException>(action);
+        }
     }
 
     [Fact]
@@ -403,14 +408,18 @@ public class PsdxTests
     {
         var cb2 = GetCb2Instance();
 
-        void GetBossStatus() => cb2.GetBossStatus(bossNumber);
-        void SetBossStatus() => cb2.SetBossStatus(bossNumber, true);
+        var actions = new Action[]
+        {
+            () => cb2.GetBossStatus(bossNumber),
+            () => cb2.SetBossStatus(bossNumber, true)
+        };
 
-        var exception = Assert.Throws<ArgumentOutOfRangeException>(GetBossStatus);
         string exceptionMessage = $"The specified boss does not exist. (Parameter 'bossNumber'){Environment.NewLine}Actual value was {bossNumber}.";
-        Assert.Equal(exceptionMessage, exception.Message);
-        exception = Assert.Throws<ArgumentOutOfRangeException>(SetBossStatus);
-        Assert.Equal(exceptionMessage, exception.Message);
+        foreach (var action in actions)
+        {
+            var exception = Assert.Throws<ArgumentOutOfRangeException>(action);
+            Assert.Equal(exceptionMessage, exception.Message);
+        }
     }
 
     [Fact]
@@ -447,13 +456,17 @@ public class PsdxTests
     {
         var cb2 = GetCb2Instance();
 
-        void GetSecretExitStatus() => cb2.GetSecretExitStatus(level);
-        void SetSecretExitStatus() => cb2.SetSecretExitStatus(level, true);
+        var actions = new Action[]
+        {
+            () => cb2.GetSecretExitStatus(level),
+            () => cb2.SetSecretExitStatus(level, true)
+        };
 
-        var exception = Assert.Throws<InvalidOperationException>(GetSecretExitStatus);
-        Assert.Equal($"Level {level} does not contain a secret exit.", exception.Message);
-        exception = Assert.Throws<InvalidOperationException>(SetSecretExitStatus);
-        Assert.Equal($"Level {level} does not contain a secret exit.", exception.Message);
+        foreach (var action in actions)
+        {
+            var exception = Assert.Throws<InvalidOperationException>(action);
+            Assert.Equal($"Level {level} does not contain a secret exit.", exception.Message);
+        }
     }
 
     [Fact]
