@@ -4,7 +4,7 @@ The main goal of the project is to build save data files that contain any game s
 
 If you have ever played *Crash Bandicoot 2*, the image below will give you an idea of what you can do with PSDX:
 
-![Crash Bandicoot 2 save screen](https://github.com/giuse94/tests/assets/59248203/095f9ade-8eb1-46e9-b08a-124b4338e4c1)
+![Crash Bandicoot 2 save screen](https://github.com/giuse94/PSDX/assets/59248203/01e2ac4f-b182-46a8-a2cf-57d2432c8a1d)
 
 ### Current status
 The project is in an early stage of development and has two main limitations:
