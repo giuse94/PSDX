@@ -25,6 +25,6 @@ jobs:
         run: |
           jb inspectcode PSDX.sln -f=sarif -o=resharper-report.sarif --swea --build
       - name: Upload SARIF file
-      - uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: resharper-report.sarif
