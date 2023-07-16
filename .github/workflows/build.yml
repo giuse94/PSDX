@@ -78,8 +78,9 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         shell: powershell
         run: |
-          .\.sonar\scanner\dotnet-sonarscanner begin /k:"giuse94_PSDX" /o:"giuse94" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
+          .\.sonar\scanner\dotnet-sonarscanner begin /k:"giuse94_PSDX" /o:"giuse94" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths="coverage.xml"
           dotnet build --no-restore
+          dotnet test --no-build --collect:"XPlat Code Coverage;Format=opencover;Output=coverage.xml"
           .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
 
       - name: Perform ReSharper analysis
@@ -94,6 +95,3 @@ jobs:
         uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: resharper-report.sarif
-
-      - name: Test
-        run: dotnet test --no-build --verbosity normal
