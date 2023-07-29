@@ -245,7 +245,7 @@ public class PsdxTests
     }
 
     [Theory]
-    [InlineData(0), InlineData(3)]
+    [InlineData(-1), InlineData(2)]
     public void GemRelatedMethodsThrowIeAe(int enumIntValue)
     {
         var cb2 = GetCb2Instance();

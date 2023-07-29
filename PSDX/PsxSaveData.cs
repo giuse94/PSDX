@@ -337,13 +337,13 @@ public class CrashBandicoot2SaveData : PsxSaveData
         /// The gem obtained by destroying all the boxes in a level.<br/>
         /// All levels in the game have this type of gem.
         /// </summary>
-        AllBoxesGem = 1,
+        AllBoxesGem = 0,
 
         /// <summary>
         /// The gem obtained by completing a level-specific task.<br/>
         /// Not all levels in the game have this type of gem.
         /// </summary>
-        SecondGem = 2
+        SecondGem = 1
     }
 
     /// <summary>
