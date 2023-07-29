@@ -127,14 +127,14 @@ public class PsdxTests
 
     [Theory]
     [InlineData(false), InlineData(true)]
-    public void TestGetStreamBehavior(bool computeRightChecksum)
+    public void TestToStreamBehavior(bool computeRightChecksum)
     {
         using var fs = new FileStream("cb2.mcs", FileMode.Open);
         var cb2 = new CrashBandicoot2SaveData(fs) { ComputeRightChecksum = computeRightChecksum };
         const uint randomChecksum = 491;
         cb2.SetChecksum(randomChecksum);
 
-        _ = cb2.GetStream();
+        _ = cb2.ToStream();
         uint storedChecksum = cb2.GetChecksum();
 
         if (computeRightChecksum)
@@ -151,7 +151,7 @@ public class PsdxTests
     public void CallersCantInterfereWithStream()
     {
         var cb2 = GetCb2Instance();
-        var stream = cb2.GetStream();
+        var stream = cb2.ToStream();
 
         stream.Position = 0;
         byte[] bytes = new byte[stream.Length];
