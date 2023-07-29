@@ -763,7 +763,7 @@ public class CrashBandicoot2SaveData : PsxSaveData
         SaveData.ReadExactly(bytes);
         string name = System.Text.Encoding.ASCII.GetString(bytes);
         name = name.Replace('[', ' '); // The space is stored as 0x5B ('[').
-        int nullIndex = name.IndexOf('\0');
+        int nullIndex = name.IndexOf('\0', StringComparison.Ordinal);
         return nullIndex > -1 ? name[..nullIndex] : name;
     }
 
