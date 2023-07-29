@@ -50,10 +50,10 @@ public class PsxSaveData
     }
 
     /// <summary>
-    /// Gets the stream containing the changes (if any) made to the save data file.
+    /// Returns the stream containing the changes (if any) made to the save data file.
     /// </summary>
     // Return a copy so that consumers won't interfere.
-    public virtual MemoryStream GetStream() => new(SaveData.ToArray());
+    public virtual MemoryStream ToStream() => new(SaveData.ToArray());
 
     /// <summary>
     /// Gets the file name of the current game.
@@ -373,7 +373,7 @@ public class CrashBandicoot2SaveData : PsxSaveData
     }
 
     /// <summary>
-    /// Gets or sets a value indicating whether <see cref="GetStream"/> should compute the right checksum
+    /// Gets or sets a value indicating whether <see cref="ToStream"/> should compute the right checksum
     /// when called. The default value is <see langword="true"/>. See also <see cref="SetChecksum"/>.
     /// </summary>
     public bool ComputeRightChecksum { get; set; } = true;
@@ -396,7 +396,7 @@ public class CrashBandicoot2SaveData : PsxSaveData
         }
     }
 
-    public override MemoryStream GetStream()
+    public override MemoryStream ToStream()
     {
         if (ComputeRightChecksum)
         {
@@ -409,7 +409,7 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// <summary>
     /// Gets the checksum currently stored in the save data file.<br/>The checksum is used by the game to test for
     /// data integrity, and is not expected to be accessible by players from within the game. It is provided for
-    /// the sake of completeness.<br/>Note that the checksum is only updated when the <see cref="GetStream"/>
+    /// the sake of completeness.<br/>Note that the checksum is only updated when the <see cref="ToStream"/>
     /// or <see cref="SetChecksum"/> methods are called. To get the up-to-date value after any change, call
     /// the <see cref="ComputeChecksum"/> method.
     /// </summary>
@@ -423,7 +423,7 @@ public class CrashBandicoot2SaveData : PsxSaveData
 
     /// <summary>
     /// Computes the current value of the checksum. The checksum changes after any Set*() method is called, but it
-    /// is not stored in the save data file until the <see cref="GetStream"/> or <see cref="SetChecksum"/>
+    /// is not stored in the save data file until the <see cref="ToStream"/> or <see cref="SetChecksum"/>
     /// methods are called.
     /// </summary>
     // Thanks to https://github.com/socram8888/tonyhax/blob/9d57fd2e072a4fd173218c321520051479d14012/entrypoints/fix-crash-checksum.sh
@@ -454,10 +454,10 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// <summary>
     /// Sets the checksum to store in the save data file. An incorrect value will invalidate the save data,
     /// i.e., the game will not load it.<br/>There is no need to call this method: the right checksum is by default
-    /// computed and applied to the save data when the <see cref="GetStream"/> method is called, unless the
+    /// computed and applied to the save data when the <see cref="ToStream"/> method is called, unless the
     /// <see cref="ComputeRightChecksum"/> property has been set to <see langword="false"/>.<br/>This method is provided
     /// to allow for experiments. To take effect, the <see cref="ComputeRightChecksum"/> property must be set to
-    /// <see langword="false"/> before calling <see cref="GetStream"/>, otherwise the provided
+    /// <see langword="false"/> before calling <see cref="ToStream"/>, otherwise the provided
     /// <paramref name="checksum"/> will be overwritten by the correct value.
     /// </summary>
     /// <param name="checksum">The checksum to store in the save data file.</param>
