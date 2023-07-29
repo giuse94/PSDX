@@ -349,7 +349,7 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// <summary>
     /// Represents the selectable languages in the game.
     /// </summary>
-    public enum Language : byte
+    public enum Language
     {
         English = 0,
 
@@ -365,7 +365,7 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// <summary>
     /// Represents the type of audio selectable in the game.
     /// </summary>
-    public enum AudioType : byte
+    public enum AudioType
     {
         Stereo = 0,
 
