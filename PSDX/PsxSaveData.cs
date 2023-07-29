@@ -22,7 +22,7 @@ public class PsxSaveData
     /// </summary>
     private const int _fileNameLength = 20;
 
-    protected MemoryStream Stream { get; } = new(_saveDataLength);
+    protected MemoryStream SaveData { get; } = new(_saveDataLength);
 
     /// <summary>
     /// Initializes a new instance of the <c>PsxSaveData</c> class with the content of the provided stream.
@@ -46,23 +46,23 @@ public class PsxSaveData
 
         // Copy the stream so that we won't change the original data.
         s.Position = 0;
-        s.CopyTo(Stream);
+        s.CopyTo(SaveData);
     }
 
     /// <summary>
     /// Gets the stream containing the changes (if any) made to the save data file.
     /// </summary>
     // Return a copy so that consumers won't interfere.
-    public virtual MemoryStream GetStream() => new(Stream.ToArray());
+    public virtual MemoryStream GetStream() => new(SaveData.ToArray());
 
     /// <summary>
     /// Gets the file name of the current game.
     /// </summary>
     public string GetFileName()
     {
-        Stream.Position = _fileNameOffset;
+        SaveData.Position = _fileNameOffset;
         byte[] buffer = new byte[_fileNameLength];
-        Stream.ReadExactly(buffer);
+        SaveData.ReadExactly(buffer);
         return System.Text.Encoding.ASCII.GetString(buffer).TrimEnd('\0');
     }
 }
@@ -299,8 +299,8 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// <returns><see langword="true"/> if the flag is on, otherwise <see langword="false"/>.</returns>
     private bool GetFlag(int offset, int flag)
     {
-        Stream.Position = offset;
-        int storedFlag = Stream.ReadByte();
+        SaveData.Position = offset;
+        int storedFlag = SaveData.ReadByte();
         // We can't just return (storedFlag > 0) because different levels can share the same slot.
         return (storedFlag & flag) > 0;
     }
@@ -313,8 +313,8 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// <param name="on">Determines whether to turn the flag on or off.</param>
     private void SetFlag(int offset, int flag, bool on)
     {
-        Stream.Position = offset;
-        int storedFlag = Stream.ReadByte();
+        SaveData.Position = offset;
+        int storedFlag = SaveData.ReadByte();
         if (on)
         {
             storedFlag |= flag;
@@ -324,8 +324,8 @@ public class CrashBandicoot2SaveData : PsxSaveData
             storedFlag &= ~flag;
         }
 
-        Stream.Position = offset;
-        Stream.WriteByte((byte)storedFlag);
+        SaveData.Position = offset;
+        SaveData.WriteByte((byte)storedFlag);
     }
 
     /// <summary>
@@ -403,7 +403,7 @@ public class CrashBandicoot2SaveData : PsxSaveData
             SetChecksum(ComputeChecksum());
         }
 
-        return new MemoryStream(Stream.ToArray());
+        return new MemoryStream(SaveData.ToArray());
     }
 
     /// <summary>
@@ -416,8 +416,8 @@ public class CrashBandicoot2SaveData : PsxSaveData
     public uint GetChecksum()
     {
         byte[] bytes = new byte[sizeof(uint)];
-        Stream.Position = _checksumOffset;
-        Stream.ReadExactly(bytes);
+        SaveData.Position = _checksumOffset;
+        SaveData.ReadExactly(bytes);
         return BitConverter.ToUInt32(bytes);
     }
 
@@ -430,8 +430,8 @@ public class CrashBandicoot2SaveData : PsxSaveData
     public uint ComputeChecksum()
     {
         byte[] buffer = new byte[0x2A4 * 4];
-        Stream.Position = 0x180;
-        Stream.ReadExactly(buffer);
+        SaveData.Position = 0x180;
+        SaveData.ReadExactly(buffer);
 
         uint checksum = 0x12345678;
         for (int i = 0; i < buffer.Length; i += 4)
@@ -463,9 +463,9 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// <param name="checksum">The checksum to store in the save data file.</param>
     public void SetChecksum(uint checksum)
     {
-        Stream.Position = _checksumOffset;
+        SaveData.Position = _checksumOffset;
         byte[] bytes = BitConverter.GetBytes(checksum);
-        Stream.Write(bytes);
+        SaveData.Write(bytes);
     }
 
     /// <summary>
@@ -477,9 +477,9 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// </exception>
     public int GetAkuAkuMasks(int slot = 1)
     {
-        Stream.Position = GetOffset(_akuAkuOffset, slot);
+        SaveData.Position = GetOffset(_akuAkuOffset, slot);
         byte[] bytes = new byte[sizeof(int)];
-        Stream.ReadExactly(bytes);
+        SaveData.ReadExactly(bytes);
         return BitConverter.ToInt32(bytes);
     }
 
@@ -493,9 +493,9 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// </exception>
     public void SetAkuAkuMasks(int number, int slot = 1)
     {
-        Stream.Position = GetOffset(_akuAkuOffset, slot);
+        SaveData.Position = GetOffset(_akuAkuOffset, slot);
         byte[] bytes = BitConverter.GetBytes(number);
-        Stream.Write(bytes);
+        SaveData.Write(bytes);
     }
 
     /// <summary>
@@ -721,9 +721,9 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// </exception>
     public int GetLastPlayedLevel(int slot = 1)
     {
-        Stream.Position = GetOffset(_lastPlayedLevelOffset, slot);
+        SaveData.Position = GetOffset(_lastPlayedLevelOffset, slot);
         byte[] bytes = new byte[sizeof(int)];
-        Stream.ReadExactly(bytes);
+        SaveData.ReadExactly(bytes);
         return BitConverter.ToInt32(bytes);
     }
 
@@ -744,9 +744,9 @@ public class CrashBandicoot2SaveData : PsxSaveData
     {
         CheckLevelNumber(level, true);
 
-        Stream.Position = GetOffset(_lastPlayedLevelOffset, slot);
+        SaveData.Position = GetOffset(_lastPlayedLevelOffset, slot);
         byte[] bytes = BitConverter.GetBytes(level);
-        Stream.Write(bytes);
+        SaveData.Write(bytes);
     }
 
     /// <summary>
@@ -758,9 +758,9 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// </exception>
     public string GetUsername(int slot = 1)
     {
-        Stream.Position = GetOffset(_usernameOffset, slot);
+        SaveData.Position = GetOffset(_usernameOffset, slot);
         byte[] bytes = new byte[8];
-        Stream.ReadExactly(bytes);
+        SaveData.ReadExactly(bytes);
         string name = System.Text.Encoding.ASCII.GetString(bytes);
         name = name.Replace('[', ' '); // The space is stored as 0x5B ('[').
         int nullIndex = name.IndexOf('\0');
@@ -790,8 +790,8 @@ public class CrashBandicoot2SaveData : PsxSaveData
 
         string nameToSave = name.Replace(' ', '[') + '\0'; // The space is stored as 0x5B ('[').
         byte[] nameBytes = System.Text.Encoding.ASCII.GetBytes(nameToSave);
-        Stream.Position = GetOffset(_usernameOffset, slot);
-        Stream.Write(nameBytes);
+        SaveData.Position = GetOffset(_usernameOffset, slot);
+        SaveData.Write(nameBytes);
     }
 
     /// <summary>
@@ -803,8 +803,8 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// </exception>
     public Language GetLanguage(int slot = 1)
     {
-        Stream.Position = GetOffset(_languageOffset, slot);
-        return (Language)Stream.ReadByte();
+        SaveData.Position = GetOffset(_languageOffset, slot);
+        return (Language)SaveData.ReadByte();
     }
 
     /// <summary>
@@ -817,8 +817,8 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// </exception>
     public void SetLanguage(Language language, int slot = 1)
     {
-        Stream.Position = GetOffset(_languageOffset, slot);
-        Stream.WriteByte((byte)language);
+        SaveData.Position = GetOffset(_languageOffset, slot);
+        SaveData.WriteByte((byte)language);
     }
 
     /// <summary>
@@ -830,8 +830,8 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// </exception>
     public AudioType GetAudioType(int slot = 1)
     {
-        Stream.Position = GetOffset(_audioTypeOffset, slot);
-        return (AudioType)Stream.ReadByte();
+        SaveData.Position = GetOffset(_audioTypeOffset, slot);
+        return (AudioType)SaveData.ReadByte();
     }
 
     /// <summary>
@@ -844,8 +844,8 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// </exception>
     public void SetAudioType(AudioType audioType, int slot = 1)
     {
-        Stream.Position = GetOffset(_audioTypeOffset, slot);
-        Stream.WriteByte((byte)audioType);
+        SaveData.Position = GetOffset(_audioTypeOffset, slot);
+        SaveData.WriteByte((byte)audioType);
     }
 
     /// <summary>
@@ -857,9 +857,9 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// </exception>
     public int GetLives(int slot = 1)
     {
-        Stream.Position = GetOffset(_livesOffset, slot);
+        SaveData.Position = GetOffset(_livesOffset, slot);
         byte[] bytes = new byte[sizeof(int)];
-        Stream.ReadExactly(bytes);
+        SaveData.ReadExactly(bytes);
         return BitConverter.ToInt32(bytes);
     }
 
@@ -873,9 +873,9 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// </exception>
     public void SetLives(int number, int slot = 1)
     {
-        Stream.Position = GetOffset(_livesOffset, slot);
+        SaveData.Position = GetOffset(_livesOffset, slot);
         byte[] bytes = BitConverter.GetBytes(number);
-        Stream.Write(bytes);
+        SaveData.Write(bytes);
     }
 
     /// <summary>
@@ -887,9 +887,9 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// </exception>
     public int GetWumpaFruits(int slot = 1)
     {
-        Stream.Position = GetOffset(_wumpaOffset, slot);
+        SaveData.Position = GetOffset(_wumpaOffset, slot);
         byte[] bytes = new byte[sizeof(int)];
-        Stream.ReadExactly(bytes);
+        SaveData.ReadExactly(bytes);
         return BitConverter.ToInt32(bytes);
     }
 
@@ -903,9 +903,9 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// </exception>
     public void SetWumpaFruits(int number, int slot = 1)
     {
-        Stream.Position = GetOffset(_wumpaOffset, slot);
+        SaveData.Position = GetOffset(_wumpaOffset, slot);
         byte[] bytes = BitConverter.GetBytes(number);
-        Stream.Write(bytes);
+        SaveData.Write(bytes);
     }
 
     /// <summary>
@@ -917,9 +917,9 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// </exception>
     public int GetScreenOffset(int slot = 1)
     {
-        Stream.Position = GetOffset(_screenOffset, slot);
+        SaveData.Position = GetOffset(_screenOffset, slot);
         byte[] bytes = new byte[sizeof(int)];
-        Stream.ReadExactly(bytes);
+        SaveData.ReadExactly(bytes);
         return BitConverter.ToInt32(bytes);
     }
 
@@ -933,9 +933,9 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// </exception>
     public void SetScreenOffset(int offset, int slot = 1)
     {
-        Stream.Position = GetOffset(_screenOffset, slot);
+        SaveData.Position = GetOffset(_screenOffset, slot);
         byte[] bytes = BitConverter.GetBytes(offset);
-        Stream.Write(bytes);
+        SaveData.Write(bytes);
     }
 
     /// <summary>
@@ -947,9 +947,9 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// </exception>
     public int GetEffectsVolume(int slot = 1)
     {
-        Stream.Position = GetOffset(_effectsVolumeOffset, slot);
+        SaveData.Position = GetOffset(_effectsVolumeOffset, slot);
         byte[] bytes = new byte[sizeof(int)];
-        Stream.ReadExactly(bytes);
+        SaveData.ReadExactly(bytes);
         int volume = BitConverter.ToInt32(bytes);
         return _volumeLevels[volume / 4];
     }
@@ -973,8 +973,8 @@ public class CrashBandicoot2SaveData : PsxSaveData
 
         volume = index * 4;
         byte[] bytes = BitConverter.GetBytes(volume);
-        Stream.Position = GetOffset(_effectsVolumeOffset, slot);
-        Stream.Write(bytes);
+        SaveData.Position = GetOffset(_effectsVolumeOffset, slot);
+        SaveData.Write(bytes);
     }
 
     /// <summary>
@@ -986,9 +986,9 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// </exception>
     public int GetMusicVolume(int slot = 1)
     {
-        Stream.Position = GetOffset(_musicVolumeOffset, slot);
+        SaveData.Position = GetOffset(_musicVolumeOffset, slot);
         byte[] bytes = new byte[sizeof(int)];
-        Stream.ReadExactly(bytes);
+        SaveData.ReadExactly(bytes);
         int volume = BitConverter.ToInt32(bytes);
         return _volumeLevels[volume / 4];
     }
@@ -1012,8 +1012,8 @@ public class CrashBandicoot2SaveData : PsxSaveData
 
         volume = index * 4;
         byte[] bytes = BitConverter.GetBytes(volume);
-        Stream.Position = GetOffset(_musicVolumeOffset, slot);
-        Stream.Write(bytes);
+        SaveData.Position = GetOffset(_musicVolumeOffset, slot);
+        SaveData.Write(bytes);
     }
 
     /// <summary>
@@ -1026,8 +1026,8 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// </exception>
     public bool GetSlotStatus(int slot)
     {
-        Stream.Position = GetOffset(_freeSlotOffset, slot);
-        return Stream.ReadByte() == 1;
+        SaveData.Position = GetOffset(_freeSlotOffset, slot);
+        return SaveData.ReadByte() == 1;
     }
 
     /// <summary>
@@ -1040,8 +1040,8 @@ public class CrashBandicoot2SaveData : PsxSaveData
     /// </exception>
     public void SetSlotStatus(int slot, bool empty)
     {
-        Stream.Position = GetOffset(_freeSlotOffset, slot);
+        SaveData.Position = GetOffset(_freeSlotOffset, slot);
         int flag = empty ? 1 : 0;
-        Stream.WriteByte((byte)flag);
+        SaveData.WriteByte((byte)flag);
     }
 }
