@@ -70,6 +70,12 @@ jobs:
       - name: Install .NET Coverage tool
         run: dotnet tool install --global dotnet-coverage
 
+      - name: Install ReportGenerator tool
+        run: dotnet tool install --global dotnet-reportgenerator-globaltool
+
+      - name: Install Stryker Mutator tool
+        run: dotnet tool install --global dotnet-stryker
+
       - name: Restore dependencies
         run: dotnet restore
 
@@ -92,7 +98,25 @@ jobs:
         with:
           category: "CodeQL"
 
+      - name: Generate coverage report
+        run: reportgenerator -reports:coverage.xml -targetdir:CoverageReport -reporttypes:Html
+
+      - name: Run mutation tests
+        run: dotnet stryker --reporter "html" --output "MutationReport"
+
       - name: Upload ReSharper report file
         uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: resharper-report.sarif
+
+      - name: Upload coverage report file
+        uses: actions/upload-artifact@v3
+        with:
+          name: CoverageReport
+          path: CoverageReport
+
+      - name: Upload mutation report file
+        uses: actions/upload-artifact@v3
+        with:
+          name: MutationReport
+          path: MutationReport
