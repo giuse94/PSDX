@@ -109,14 +109,10 @@ jobs:
         with:
           sarif_file: resharper-report.sarif
 
-      - name: Upload coverage report file
+      - name: Upload reports
         uses: actions/upload-artifact@v3
         with:
-          name: CoverageReport
-          path: CoverageReport
-
-      - name: Upload mutation report file
-        uses: actions/upload-artifact@v3
-        with:
-          name: MutationReport
-          path: MutationReport
+          name: Reports
+          path: |
+            CoverageReport
+            MutationReport
