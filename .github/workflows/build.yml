@@ -36,39 +36,31 @@ jobs:
         with:
           languages: csharp
 
-      - name: Set up JDK 11 for SonarCloud scanner
+      - name: Set up JDK 17 for SonarCloud scanner
         uses: actions/setup-java@v3
         with:
-          java-version: 11
+          java-version: 17
           distribution: 'zulu' # Alternative distribution options are available.
 
-      - name: Cache SonarCloud packages
-        uses: actions/cache@v3
-        with:
-          path: ~\sonar\cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
-
-      - name: Cache SonarCloud scanner
-        id: cache-sonar-scanner
-        uses: actions/cache@v3
-        with:
-          path: .\.sonar\scanner
-          key: ${{ runner.os }}-sonar-scanner
-          restore-keys: ${{ runner.os }}-sonar-scanner
-
       - name: Install SonarCloud scanner
-        if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
         shell: powershell
         run: |
           New-Item -Path .\.sonar\scanner -ItemType Directory
           dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
 
-      - name: Install ReSharper CLI tools
-        run: dotnet tool install --global JetBrains.ReSharper.GlobalTools
+      # The "upload sarif" action is unable to upload the report as property
+      # "repositoryUri" contains a trailing newline: "https://github.com/giuse94/PSDX\r\n".
+      # - name: Install ReSharper CLI tools
+      #  run: dotnet tool install --global JetBrains.ReSharper.GlobalTools
           
       - name: Install .NET Coverage tool
         run: dotnet tool install --global dotnet-coverage
+
+      - name: Install ReportGenerator tool
+        run: dotnet tool install --global dotnet-reportgenerator-globaltool
+
+      - name: Install Stryker Mutator tool
+        run: dotnet tool install --global dotnet-stryker
 
       - name: Restore dependencies
         run: dotnet restore
@@ -79,20 +71,34 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         shell: powershell
         run: |
-          .\.sonar\scanner\dotnet-sonarscanner begin /k:"giuse94_PSDX" /o:"giuse94" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.vscoveragexml.reportsPaths="coverage.xml"
+          .\.sonar\scanner\dotnet-sonarscanner begin /k:"giuse94_PSDX" /o:"giuse94" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.vscoveragexml.reportsPaths="coverage.xml"
           dotnet build --no-restore
           dotnet-coverage collect 'dotnet test' -f xml  -o 'coverage.xml'
-          .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+          .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
 
-      - name: Perform ReSharper analysis
-        run: jb inspectcode -f="sarif" -o="resharper-report.sarif" --swea --no-build "PSDX.sln"
+      # - name: Perform ReSharper analysis
+      #  run: jb inspectcode -f="sarif" -o="resharper-report.sarif" --swea --no-build "PSDX.sln"
 
       - name: Perform CodeQL analysis
         uses: github/codeql-action/analyze@v2
         with:
           category: "CodeQL"
 
-      - name: Upload ReSharper report file
-        uses: github/codeql-action/upload-sarif@v2
+      - name: Generate coverage report
+        run: reportgenerator -reports:coverage.xml -targetdir:CoverageReport -reporttypes:Html
+
+      - name: Run mutation tests
+        run: dotnet stryker --reporter "html" --output "MutationReport"
+
+      # - name: Upload ReSharper report file
+      #  uses: github/codeql-action/upload-sarif@v2
+      #  with:
+      #    sarif_file: resharper-report.sarif
+
+      - name: Upload reports
+        uses: actions/upload-artifact@v3
         with:
-          sarif_file: resharper-report.sarif
+          name: Reports
+          path: |
+            CoverageReport
+            MutationReport
