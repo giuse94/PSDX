@@ -48,8 +48,10 @@ jobs:
           New-Item -Path .\.sonar\scanner -ItemType Directory
           dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
 
-      - name: Install ReSharper CLI tools
-        run: dotnet tool install --global JetBrains.ReSharper.GlobalTools
+      # The "upload sarif" action is unable to upload the report as property
+      # "repositoryUri" contains a trailing newline: "https://github.com/giuse94/PSDX\r\n".
+      # - name: Install ReSharper CLI tools
+      #  run: dotnet tool install --global JetBrains.ReSharper.GlobalTools
           
       - name: Install .NET Coverage tool
         run: dotnet tool install --global dotnet-coverage
@@ -74,8 +76,8 @@ jobs:
           dotnet-coverage collect 'dotnet test' -f xml  -o 'coverage.xml'
           .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
 
-      - name: Perform ReSharper analysis
-        run: jb inspectcode -f="sarif" -o="resharper-report.sarif" --swea --no-build "PSDX.sln"
+      # - name: Perform ReSharper analysis
+      #  run: jb inspectcode -f="sarif" -o="resharper-report.sarif" --swea --no-build "PSDX.sln"
 
       - name: Perform CodeQL analysis
         uses: github/codeql-action/analyze@v2
@@ -88,10 +90,10 @@ jobs:
       - name: Run mutation tests
         run: dotnet stryker --reporter "html" --output "MutationReport"
 
-      - name: Upload ReSharper report file
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: resharper-report.sarif
+      # - name: Upload ReSharper report file
+      #  uses: github/codeql-action/upload-sarif@v2
+      #  with:
+      #    sarif_file: resharper-report.sarif
 
       - name: Upload reports
         uses: actions/upload-artifact@v3
